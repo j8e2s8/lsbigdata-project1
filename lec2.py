@@ -179,6 +179,8 @@ bin(~x)
 
 
 pip install pydataset  # 문법 오류 뜸
+!pip install pydataset # 잘 실행 됨.
+
 
 
 import pydataset
@@ -189,3 +191,25 @@ df
 
 
 !pip install pandas
+
+
+a = 3
+a += 2
+a -= 1
+a *= 5
+a /= 2
+a **= 2
+a //= 4
+a %= 4
+a
+
+a='string'
+a*2
+a
+
+
+
+
+
+
+-128+64+32+16+8+4+2+1
