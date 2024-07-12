@@ -256,10 +256,31 @@ plt.show()
 mpg['grade'] = np.where(mpg['total'] >= 30, 'A', np.where(mpg['total'] >= 20, 'B', 'C'))
 
 
-mpg['grade'].value_counts()
-mpg['grade'].plot.bar()
+mpg
+mpg['grade'].value_counts()  # 자동으로 빈도수가 많은 애부터 정렬됨
+mpg['grade'].value_counts().plot.bar(rot=0) # 빈도수가 많은 애부터 정렬
+mpg['grade'].value_counts().sort_index().plot.bar(rot=0)  # 범주 인덱스 순으로 정렬
+plt.show()
+plt.clf()
+import matplotlib.pyplot as plt
+type(mpg['grade'].value_counts())
 
-# 4day
+
+
+mpg['size'] = np.where(mpg['category'] == 'compact'
+                     | mpg['category'] == 'subcompact'
+                     | mpg['category'] == '2seater')
+                     , 'small', 'large')
+
+
+
+
+
+
+
+
+
+
 
 a=(1,2,3)
 a
@@ -302,3 +323,158 @@ id(b)
 b[1]=7
 a
 b
+
+
+
+
+import math
+sqrt_val = math.sqrt(16)
+print("16의 제곱근은:", sqrt_val)
+
+exp_val = math.exp(5)
+print("e^5의 값은:", exp_val)
+
+log_val = math.log(10,10)
+print("10의 밑 10 로그 값은:", log_val)
+
+def normal_def(x, mu, sigma):
+  sqrt_two_pi = math.sqrt(2*math.pi)
+  factor =1/(sigma*sqrt_two_pi)
+  return factor*math.exp(-0.5*((x-mu)/sigma)**2)
+
+def my_normal_pdf(x, mu, sigma):
+  part_1 =1/(sigma*math.sqrt(2*math.pi))
+  part_2 = math.exp( (-(x-mu)**2) / (2 * sigma**2))
+  return part_1 * part_2
+my_normal_pdf(3,3,1)
+
+
+def f(x,y,z):
+  return (x**2 + math.sqrt(y)+ math.sin(z)) * math.exp(x)
+
+f(2,9,math.pi/2)
+
+def my_g(x):
+  return math.cos(x) + math.sin(x) * math.exp(x)
+my_g(math.pi)
+
+def fname(`indent('.') ? 'self' : ''`):
+    """docstring for fname"""
+    # TODO: write code...   
+# 4day
+
+def     (input):
+    contents
+    return
+    
+
+import pandas as pd
+import numpy as np
+
+
+# ctrl+shift+c : 주석처리
+
+
+a = np.array([1,2,3,4,5])
+b = np.array(["apple", "banana", "orange"])
+c = np.array([True, False, True, True])
+
+type(a)
+a[3]
+a[2:]
+a[1:4]
+
+b = np.empty(3)  # 빈 배열 만들기
+b
+b[0] = 1   # 실수로 저장됨
+b[1] = 4
+b[2] = 10
+b
+b[2]
+
+vec1=np.array([1,2,3,4,5])
+vec1=np.arange(100)  # 0이상 99미만에서 1단위로 숫자 만들기
+vec1=np.arange(1,101, 0.5) # 0이상 101미만에서 0.5 단위로 숫자 만들기
+vec1
+
+l_space1 = np.linspace (0,1,5)  #0이상 1이하, 숫자 5개 만들어줘
+l_space1
+
+linear_space2 = np.linspace(0,1,5, endpoint=False) #0이상 1미만, 숫자 5개 만들어줘
+linear_space2
+
+?np.linspace
+
+vec1 = np.arange(5)
+type(vec1)
+np.repeat(vec1,5)
+
+#-100부터 0까지 
+vec2 = np.arange(-100,1)
+vec2
+
+vec3 = np.arange(0, -100) # 이렇게는 안됨
+vec3
+
+
+vec4 = np.arange(0, -101, -1) # 간격을 음수로 하면 됨
+vec4
+
+
+# repeat vs tile
+vec1 = np.arange(5)
+np.repeat(vec1, 3)  # 원소마다 반복
+np.tile(vec1,3)   # 전체적으로 반복
+
+vec1 + vec1
+
+vect = np.array([1,2,3,4])
+vec1+vec1
+
+
+max(vec1)
+min(vec1)
+
+# 35672이하 홀수들의 합은?
+vec1 = np.arange(1,35673, 2)
+vec1
+sum(vec1)
+
+
+np.arange(1,35673,2).sum()  # array의 메서드로 sum()이 존재함.
+# 가독성을 위해서 .이 많으면 가독성이 좋지 않음, 가독성을 위해서 
+x=np.arange(1,35673,2)
+x.sum()
+
+
+len(x)
+x.shape  # 튜플 형태로 반환함
+
+b=np.array([[1,2,3],[4,5,6]])
+len(b)   # 원소가 2개니까 2.
+b.shape   # 행렬로 본 것임. (2,3)
+b.size   # 전체 값의 갯수
+
+
+a=np.array([1,2])
+b=np.array([1,2,3,4]) 
+a+b  # 길이가 달라서 계산 안됨
+
+np.tile(a,2) + b  # 길이가 같아서 계산 가능
+np.repeat(a,2) +b
+
+b
+b == 3  # b의 각 원소들이랑 == 여부 비교하는 것임.
+
+# 35672보다 작은 수 중에서 7로 나눠서 나머지가 3인 숫자들의 갯수는?
+c= np.arange(0,35672) % 7
+c == 3
+len(c)
+sum(c == 3)  # True인 갯수
+
+sum(np.linspace(1,35671, 35671) % 7 == 3)  # True, False를 이용해서 해당하는 값의 갯수를 구할 수 있음.
+# 벡터는 문자열로만, 숫자로만 가능함. 리스트는 섞어서도 가능한데 벡터는 안됨
+
+
+
+
