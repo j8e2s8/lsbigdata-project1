@@ -477,4 +477,308 @@ sum(np.linspace(1,35671, 35671) % 7 == 3)  # True, False를 이용해서 해당�
 
 
 
+# 7/15 수업
+import numpy as np
+a=np.array([0.1,2.0,3.0])
+b = 2.0
+a*b
 
+a.shape
+b.shape  # shape이 존재하지 않음. 숫자 1개니까
+
+# 하나는 shape이 존재하고, 하나는 shape이 존재하지 않을 때 브로드캐스팅이 된다.
+
+
+#2차원 배열 생성
+matrix = np.array([[0.0, 0.0, 0.0],
+                  [10.0, 10.0, 10.0],
+                  [20.0, 20.0, 20.0],
+                  [30.0, 30.0, 30.0]])
+                  
+matrix.shape
+
+vector = np.array([1.0,2.0,3.0])   # (4,3) + (3,) 가능
+vector.shape
+result = matrix + vector
+result
+# 원소의 첫원소끼리 더하기, 원소의 두번째 원소끼리 더하기
+
+
+vector = np.array([1.0, 2.0, 3.0, 4.0]).reshape(4,1)  # (4,3) + (4,1) 가능
+vector
+vector.shape
+result = matrix + vector
+result
+
+
+vector = np.array([1.0, 2.0, 3.0, 4.0]).reshape(1,4)  # (4,3) + (1,4) 불가능. 차원이 같아야지 연산이 가능함.
+vector
+vector.shape
+result = matrix + vector
+result
+
+
+
+
+#백터 슬라이싱 예제, a를 랜덤하게 채움
+
+a = np.random.randint(1,21,10)  # 값 10개 생성, 돌릴 때마다 값 달라짐
+a
+b = np.random.randint(1,21)  # 값 1개만 생성
+b
+
+np.random.seed(42)   
+a = np.random.randint(1,21,10)  # 값 10개 생성, 돌릴 때마다 값 동일함. 누가 어느 컴퓨터로 돌리든 동일함
+a 
+
+np.random.seed(2024)   # 올해 연도를 사용하면 편리함
+a = np.random.randint(1,21,10)  # 값 10개 생성, 돌릴 때마다 값 동일함. 누가 어느 컴퓨터로 돌리든 동일함
+a 
+
+
+
+?np.random.seed
+?np.random.randint
+
+a[2:5]
+a[-2]  # 맨 끝에서 두번째
+a[::2]  # [첫 값 : 끝 값 : 스텝]  # 얘는 전체에서 스텝 2로 2씩 띄어서 추출임.
+a[1:6:2]
+
+#1에서부터 1000사이 3의 배수의 합은?
+a=np.arange(1,1001)
+a=np.arange(3,1001,3)
+sum(a)
+
+x = np.arange(3,1001)
+x[::3]
+sum(x[::3])
+
+
+np.random.seed(2024)   # 올해 연도를 사용하면 편리함
+a = np.random.randint(1,21,10)  # 값 10개 생성, 돌릴 때마다 값 동일함. 누가 어느 컴퓨터로 돌리든 동일함
+a 
+print(a[[0,2,4]])
+
+np.delete(a, [1,3])
+
+
+
+# 필터링
+a>3
+b= a[a>3]  # 인덱스 대신에 비교연산으로 인한 True, False로 True 값만 인덱싱할 수 있음 (필터링)
+b
+
+
+np.random.seed(2024)
+a= np.random.randint(1, 10000, 300)  # 동일한 변수명 a로, 동일한 random.seed(2024)로 벡터를 여러번 생성했는데, 문장만 동일하면 항상 값이 동일하게 나옴.
+a
+a<5000
+a[a<5000]
+
+
+np.random.seed(2024)
+a= np.random.randint(1, 10000, 5)
+a
+(a>2000) & (a<5000)
+a[(a>2000) & (a<5000)]
+
+
+import pydataset
+
+df=pydataset.data('mtcars')
+np_df = np.array(df['mpg'])  # df의 'mpg' 칼럼을 벡터로 불러옴.
+np_df
+
+# 15이상 25이하 데이터 갯수는?
+np_df[(np_df>=15) & (np_df<=25)]
+sum((np_df>=15) & (np_df<=25))
+
+# 평균 mpg 보다 높은(이상) 자동차 대수는?
+sum(np.mean(np_df)<=np_df)
+
+
+#15보다 작거나 22이상인 데이터 갯수는?
+sum((np_df < 15) | (np_df>=22))
+
+
+np.random.seed(2024)
+a = np.random.randint(1,1000,5)
+b = np.array(["A","B","C","F","W"])
+a[(a>600) & (a<650)]
+(a>600) & (a<650)
+b[(a>600) & (a<650)]  #a에 대한 True, False를 b에 적용해서 불러오겠다는 것임.
+
+
+model_names = np.array(df.index)  #df.index가 자동차 모델 이름임.
+model_names
+model_names[(np_df>=15) & (np_df<=25)]
+model_names[(np_df < 15) | (np_df>=22)]
+
+
+# 연비가 좋은 애들만 뽑아보기
+model_names[np_df >= np.mean(np_df)]
+model_names[np_df < np.mean(np_df)]
+
+df
+df['mpg'][df['mpg']>30]
+
+
+
+# 필터링한 결과에 값을 바꿀 수 있음
+a
+a[a<600] = 0
+a
+
+np.random.seed(2024)
+a = np.random.randint(1,100,10)
+a
+np.where(a<50)  # True의 위치를 반환하는 함수
+
+# 처음으로 22000보다 큰 숫자가 나왔을 때, 그 숫자의 위치와 그 숫자는 무엇인가요?
+np.random.seed(2024)
+a = np.random.randint(1,26346,1000)
+a
+a[np.where(a>22000)][0]
+np.where(a>22000)
+
+type(np.where(a>22000))  # 값을 1개만 가지는 튜플임
+np.where(a>22000)[0]
+type(np.where(a>22000)[0])
+np.where(a>22000)[0][0]
+type(np.where(a>22000)[0][0])
+
+
+my_index=np.where(a>22000)[0][0]
+a[my_index]
+
+# 처음으로 24000보다 큰 숫자 나왔을 때, 그 숫자와 위치는 무엇인가요?
+a
+a[np.where(a>24000)][0]
+
+np.where(a>24000)[0][0]
+a[np.where(a>24000)[0][0]]
+
+# 처음으로 10000보다 큰 숫자 나왔을 때, 50번째로 나오는 그 숫자와 위치는 무엇인가요?
+a
+a[np.where(a>10000)][49]
+
+np.where(a>10000)[0][49]
+a[np.where(a>10000)[0][49]]
+
+
+# 500보다 작은 숫자들 중 가장 마지막으로 나오는 숫자 위치와 그 숫자는 무엇인가요?
+np.where(a<500)[0][-1]
+a[np.where(a<500)[0][-1]]
+
+
+# np.nan로 빈칸을 표현 할 수 있다.
+a= np.array([20, np.nan, 13, 24, 309])
+a+3 
+np.mean(a)   # nan을 무시 못해서, 평균 결과가 nan이 나옴
+np.nanmean(a)  # nan을 무시하고 평균값 구해줌.
+
+np.nan_to_num(a)  # nan을 0으로 바꿔줌.
+?np.nan_to_num
+np.nan_to_num(a, nan=1)  # 원하는 값으로 nan을 바꿔줌.
+
+
+c = np.array([1, "A", True])
+c
+type(c)
+
+c = np.empty(3)
+c
+
+c = np.arange(1, 50, 2)
+c
+type(c)
+c.shape
+
+
+a = None  # 변수 초기화
+a
+b = np.nan   # nan이라는 값을 가짐
+b
+a+1
+b+1
+
+a= np.array([20, np.nan, 13, 14])
+np.isnan(a)
+
+~np.isnan(a)
+a_filtered = a[~np.isnan(a)]
+a_filtered
+
+
+str_vec = np.array(["사과","배","수박","참외"])
+str_vec[[0,2]]
+mix_vec = np.array(["사과", 12, "수박", "참외"])
+mix_vec = np.array(["사과", 12, "수박", "참외"], dtype=str)  #dtype 설정가능
+mix_vec
+np.concatenate((str_vec, mix_vec))
+np.concatenate([str_vec, mix_vec])
+
+
+col_stacked = np.column_stack((np.arange(1,5),
+                               np.arange(12,16)))   # 열기준으로 2줄 생김
+col_stacked
+
+row_stacked = np.row_stack((np.arange(1,5),
+                            np.arange(12,16)))   # 행기준으로 2줄 생김. 근데 곧 지원하지 않을 거라고 경고 뜸.
+row_stacked
+
+
+
+uneven_stacked = np.column_stack((np.arange(1,5),
+                                  np.arange(12,18)))
+uneven_stacked
+
+
+
+vec1 = np.arange(1,5)
+vec2 = np.arange(12,18)
+
+uneven_stacked = np.column_stack((vec1, vec2))
+
+vec1 = np.resize(vec1, len(vec2))
+vec1
+uneven_stacked = np.column_stack((vec1, vec2))
+uneven_stacked
+
+
+# 홀수번째 원소
+a = np.array([12,21,35,48,5])
+a[0::2]
+a[1::2]
+
+# 최대값 찾기
+a = np.array([1,22,93,64,54])
+a.max()
+
+a = np.array([21,31,58])
+b = np.array([24,44,67])
+a
+b
+
+#
+c = np.empty(6)
+c[1::2] = b
+c[0::2] = a
+c
+
+import pandas as pd
+df=pd.DataFrame({'name' : ['김지훈','이유진','박동현','김민지'],
+              'english' : [90, 80 , 60, 70],
+              'math' : [50, 60, 100, 20]})
+type(df)         
+
+df = pd.DataFrame({'제품' : ["사과","딸기","수박"],
+                   '가격' : [1800, 1500, 3000],
+                   '판매량' : [24,38,13]})
+                   
+df
+df['가격'].mean()
+df['판매량'].mean()
+
+np.repeat(1, 3)
