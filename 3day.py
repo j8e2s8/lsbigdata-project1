@@ -1357,7 +1357,7 @@ type(np.arange(1,5))
 
 
 
-
+import pandas as pd
 
 
 np.zeros(5)
@@ -1663,3 +1663,626 @@ import numpy as np
 import seaborn as sns
 
 raw_welfare = pd.read_spss
+
+
+
+# 7/22
+fruits = ["apple","banana","cherry"]
+
+
+empty_list = []
+empty_list2 = list()
+
+numbers = [1,2,3,4,5]
+range_list = list(range(5))
+range_list
+
+
+range_list[3] = "LS 빅데이터 스쿨"
+range_list
+range_list[1] = [1,2,3]
+range_list
+range_list[1][2]
+
+
+# 리스트 내포(comprehension)
+# 1. 대괄호로 쌓여져있다 -> 리스트다.
+# 2. 넣고 싶은 수식 표현을 x를 사용해서 표현
+# 3. for .. in .. 을 사용해서 원소 정보 제공
+range(10)
+list(range(10))
+squares = [x**2 for x in range(10)]
+
+[x**2 for x in [3,5,2,15]]
+[x**2 for x in (3,5,2,15)]
+[x**2 for x in {3,5,2,15}]
+[x**2 for x in np.array([3,5,2,15])]
+[x**2 for x in np.arange(0,4)]
+
+# pandas serise
+import pandas as pd
+exam = pd.read_csv("exam.csv")
+
+
+numbers = [5,3,6]
+repeated_list = [x for x in numbers for _ in range(4)]
+repeated_list
+
+# _ 의미
+# 1. 앞에 나온 값을 가리킴
+5+4
+_+6  # _는 9를 의미
+
+# 값 생략, 자리 차지(placeholder)
+a, _, b = (1,2,4)
+a; b
+_
+
+
+_ = None
+_
+del _
+_
+del _
+_
+
+
+
+# for 루프 문법
+# for i in 범위:
+# 작동방식
+for x in [4,1,2,3]:
+    print(x)
+    
+for x in range(5):
+    print(x**2)
+
+
+# 리스트를 하나 만들어서 for 루프를 사용해서 2,4,6,8, ..., 20 수를 채워넣기
+a =[]
+for i in np.arange(1,11):
+    a.append(i*2)
+
+a
+
+[i for i in np.arange(2,21,2)]
+
+
+mylist = [0]*5
+mylist
+
+
+
+
+
+numbers = [5,2,3]
+
+## looping ten times uping _
+for x in numbers:
+    for y in range(4):
+        print(x)
+    
+
+mylist = []
+for i in [1,2,3]:
+    
+    
+mylist = [0]*10
+mylist
+for i in range(10):
+    mylist[i] = 2*(i+1)
+    
+mylist
+
+
+# 인덱스 공유해서 카피하기
+mylist_b = [2,4,6,80,10,12,24,35,23,20]
+for i in range(10):
+    mylist[i] = mylist_b[i]
+    
+mylist
+
+
+
+# 퀴즈 : mylist_b의 홀수번째 위치에 있는 숫자들만 mylist에 가져오기
+mylist = [0]*5
+for i in range(5):
+    mylist[i] = mylist_b[2*i]
+    
+mylist
+
+
+# 리스트 컴프리헨션으로 바꾸는 방법
+# 바깥은 무조건 대괄호로 묶어줌: 리스트 반환하기 위해서.
+# for 루프의 : 는 생략한다.
+# 실행부분을 먼저 써준다.
+# 중복부분 제외시킴.
+# 결과를 받는 부분 제외시킴.
+
+[2*x for x in range(1,11)]
+
+
+for i in range(3):
+    for j in range(2):
+        print(i,j)
+        
+for i in [0,1,2]:
+    for j in [0,1]:
+        print(i,j)
+        
+for i in [0,1,2]:
+    for j in [3,4]:
+        print(i)
+        
+[x for x in range(3) for y in [3,4]]
+
+
+# 원소 체크
+fruits = ['apple', 'apple', 'banana', 'cherry']
+"banana" in fruits
+
+
+# 바나나의 위치를 뱉어내게 하려면?
+fruits = ['apple', 'apple', 'banana', 'cherry']
+
+import numpy as np
+
+for i in range(len(fruits)):
+    np.where(fruits[i] == 'banana',print(i), print(None))
+
+fruits = np.array(fruits)
+int(np.where(fruits == 'banana')[0][0])
+
+
+# 원소 순서를 거꾸로 써주는 reverse()
+fruits = ['apple', 'apple', 'banana', 'cherry']
+fruits.reverse()
+fruits 
+
+
+fruits.append("pineapple")
+fruits
+
+fruits.insert(2,"orange")
+fruits
+
+
+# 원소 제거
+fruits.remove("apple") # 동일한 값이 있다면 가장 먼저 있는 값을 지움.
+fruits
+
+# 제거할 항목 리스트
+fruits = np.array(['apple', 'apple', 'banana', 'cherry'])
+items_to_remove = np.array(['banana','apple'])
+items_to_remove
+
+mask = ~np.isin(fruits, items_to_remove)   # 둘다 array이어야 함.
+mask = ~np.isin(fruits, ['banana','apple'])
+mask
+
+filtered_fruits = fruits[mask]
+filtered_fruits
+
+
+import pandas as pd
+mpg = pd.read_csv('data/mpg.csv')
+mpg.shape
+
+!pip install seaborn
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+plt.clf()
+sns.scatterplot(data=mpg, x="displ", y="hwy").set(xlim=[3,6], ylim=[10,30])
+plt.show()
+
+# 막대그래프
+df_mpg = mpg.groupby("drv", as_index=False).agg(mean_hwy = ('hwy', 'mean'))
+df_mpg
+
+plt.clf()
+sns.barplot(data=df_mpg, x='drv', y='mean_hwy', hue='drv')
+plt.show()
+
+
+drv_count = mpg.groupby('drv', as_index=False).agg(n= ('drv', 'count'))
+plt.clf()
+sns.barplot(data=drv_count, x='drv', y='n')
+plt.show()
+
+
+
+# 9장 교재
+import pandas as pd
+welfare = pd.read_spss('data/Koweps_hpwc14_2019_beta2.sav')
+
+welfare.shape
+welfare.info()
+welfare.describe()
+
+welfare = welfare.rename(columns = { 'h14_g3' : 'sex'
+                                   , 'h14_g4' : 'birth'
+                                   , 'h14_g10' : 'marriage_type'
+                                   , 'h14_g11' : 'religion'
+                                   , 'p1402_8aql' : 'income'
+                                   , 'h14_eco9' : 'code_job'
+                                   , 'h14_reg7' : 'code_region'})
+welfare.head()
+
+import numpy as np
+welfare['sex'] = np.where(welfare['sex'] == 9 , np.nan , welfare['sex'])
+welfare
+welfare['sex'] = np.where(welfare['sex'] == 1, 'male' , 'female')
+welfare['sex'].value_counts()
+
+sns.countplot(data=welfare, x='sex')
+
+
+
+np.arange(33).sum()/33
+sum(np.unique((np.arange(33)-16)**2)*2)/33
+
+
+# 분산
+import numpy as np
+x=np.arange(4)
+pro_x = np.array([1/6, 2/6, 2/6, 1/6])
+Ex = sum(x*pro_x)
+Exx = sum(x**2 * pro_x)
+sum((x - Ex)**2 * pro_x)
+
+# 문제
+# x = 0~98까지 정수
+import numpy as np
+x = np.arange(0,99)
+j1 = np.arange(1,51)
+j2 = np.arange(49,0, -1)
+j3 = np.concatenate((j1,j2))
+
+pro_x = np.array(j3) / 2500
+sum(x*pro_x)
+
+
+j1 = np.arange(1,51)
+j2 = np.arange(49,0, -1)
+j3 = np.concatenate((j1,j2))
+j3
+
+
+
+
+# 7/24 수업
+a =set((1,2,3))
+a
+b = set((3,4,5))
+c = set((3,4))
+a.difference(b)
+b.difference(a)
+a.symmetric_difference(b)
+b.symmetric_difference(a)
+a.isdisjoint(b)
+a.issubset(b)
+c.issubset(b)
+b.issubset(c)
+c.issuperset(b)
+b.issuperset(c)
+
+from scipy.stats import bernoulli
+bernoulli.pmf(1, 0.3)  # 베르누이 확률변수 값이 1일 때의 확률이 0.3
+bernoulli.pmf(0, 0.3)  # 베르누이 확률변수 값이 0일 때의 확률이 0.3
+
+bernoulli.pmf([0,1], 0.3)
+
+# 07/25
+
+# P(X =k | n , p)
+# n : 베르누이 확률변수 더한 갯수
+# p : 1이 나올 확률
+# binom.pmf(k, n, p)
+
+from scipy.stats import binom
+
+binom.pmf(0, n=2, p=0.3)
+binom.pmf(1, n=2, p=0.3)
+binom.pmf(2, n=2, p=0.3)
+
+import numpy as np
+for i in np.arange(31):
+    print("X=",i,"일 때: ",binom.pmf(i, n=30, p=0.3))  # for문 안 쓰고 k값에 벡터 넣어도 됨
+    
+binom.pmf([1,2] , n=30, p=0.3)
+
+np.arange(1,55).cumprod()
+np.arange(1,4).cumprod()
+np.cumprod([1,2,3])
+
+n= np.arange(1,55)
+np.log(n)
+np.log([1,2,3,4])
+
+
+import math 
+math.comb(54,26)
+
+np.log(math.factorial(54))
+
+np.mean(np.array([2,3,4]))
+
+math.comb(2,0) * (0.7**2)
+math.comb(2,1) * (0.3) * 0.7
+math.comb(2,2) * (0.3**2) 
+
+
+
+# X~ B
+binom.pmf(4, n=10,p=0.36)
+binom.pmf(np.arange(5), n=10, p=0.36).sum()
+binom.pmf(np.arange(3,9), n=10, p=0.36).sum()
+
+binom.pmf(np.arange(4), n=30, p=0.2).sum()+ binom.pmf(np.arange(25,31), n=30, p=0.2).sum() 
+binom.pmf(np.concatenate([np.arange(4),np.arange(25,31)]) , n=30, p=0.2).sum()
+1-binom.pmf(np.arange(4,25), n=30, p=0.2).sum()
+
+
+# rvs 함수 (random variable sample)
+# 표본 추출 함수
+
+
+binom.rvs(n=30, p=0.26, size=5)
+30*0.26
+
+
+
+import pandas as pd
+import seaborn as sns
+plt.clf()
+sns.barplot(x=np.arange(31), y= binom.pmf(np.arange(31), n=30, p=0.26))
+plt.show()
+
+plt.clf()
+sns.barplot(x=[0,1], y=bernoulli.pmf([0,1],p=0.3))
+plt.show()
+
+# cdf : cumulative dist fuction (누적 확률)
+binom.pmf(np.arange(5,19), n=30, p=0.26).sum()
+binom.cdf(18,  , z n=30, p=0.26) - binom.cdf(4, n=30, p=0.26)
+binom.cdf(19, n=30, p=0.26) - binom.cdf(13, n=30, p=0.26)
+
+plt.clf()
+sns.barplot(x=np.arange(31),  y=binom.pmf(np.arange(31), n=30, p=0.26), color='blue')
+plt.scatter(10, 0.05, color='red', zorder=10, s=10)
+plt.show()
+
+from scipy.stats import binom
+import matplotlib.pyplot as plt
+import numpy as np
+
+x_1 = binom.rvs(n=30, p=0.26, size=3)
+x_1
+plt.clf()
+sns.barplot(x=np.arange(31),  y=binom.pmf(np.arange(31), n=30, p=0.26), color='blue', zorder=1)
+plt.scatter(x_1, np.repeat(0.003,3), color='red', zorder=10, s=10)
+sns.barplot(x=30*0.26, y=binom.pmf(30*0.26, n=30, p=0.26) , color='yellow', zorder=11)
+plt.axvline(x=30*0.26, color='green', linestyle='--', linewidth=2)
+plt.show()
+
+
+
+x_1 = binom.rvs(n=30, p=0.26, size=1)
+x_1
+plt.clf()
+sns.barplot(x=np.arange(31),  y=binom.pmf(np.arange(31), n=30, p=0.26), color='blue', zorder=1)
+plt.scatter(x_1, 0.003, color='red', zorder=3)
+sns.barplot(x=30*0.26, y=binom.pmf(30*0.26, n=30, p=0.26) , color='yellow', zorder=11)
+plt.axvline(x=30*0.26, color='green', linestyle='--', linewidth=2)
+plt.show()
+
+
+
+
+
+x_i = bernoulli.rvs(p=0.3)
+
+plt.clf()
+sns.barplot(x=[0,1], y=bernoulli.pmf([0,1], p=0.3))
+plt.scatter(x=x_i, y=0.02, color = 'red',  s=10, zorder = 2) # 해당좌표에 점 찍기
+            # x : x 좌표, y : y 좌표, color : 색 지정, s : 점 크기, zorder : 그래프를 여러개 설정했을 때 그래프를 쌓을 z축 좌표
+plt.axvline(x=0.3, color = 'green', linestyle='--', linewidth=2)  # 선 표시하기 
+            # x : x 좌표, color : 색 지정, linestyle : 선 스타일 지정, linewidth : 선 굵기 지정
+plt.show()
+
+
+
+
+binom.ppf(0.5, n=30, p=0.26)
+binom.ppf(0.7, n=30, p=0.26)
+binom.cdf(8, n=30, p=0.26)
+binom.cdf(9, n=30, p=0.26)
+binom.cdf(7, n=30, p=0.26)
+
+math.pi
+
+from scipy.stats import norm
+norm.pdf(5, loc=3, scale=4)
+
+np.linspace(-3,3,5)
+norm.pdf(np.linspace(-3,3,5), loc=0, scale=1)
+norm.pdf(4, loc=0, scale=1)
+
+plt.clf()
+plt.scatter(x=np.linspace(-3,3,5), y=norm.pdf(np.linspace(-3,3,5), loc=0, scale=1), color='blue')
+plt.show()
+
+plt.clf()
+plt.scatter(x=np.linspace(-3,3,100), y=norm.pdf(np.linspace(-3,3,100), loc=0, scale=1), color='blue')
+plt.show()
+
+
+norm.pdf(np.linspace(-5,5,100), loc=0, scale=1)
+
+
+
+
+plt.clf()
+plt.plot(np.linspace(-5,5,100), norm.pdf(np.linspace(-5,5,100), loc=0, scale=1), color="black")  # x=, y= 설정하면 에러남
+plt.show()
+
+
+plt.clf()
+plt.plot(np.linspace(-5,5,5), norm.pdf(np.linspace(-5,5,5), loc=0, scale=1), color="black")  # x=, y= 설정하면 에러남
+plt.show()
+
+
+
+
+plt.clf()
+plt.plot(np.linspace(-5,5,100), norm.pdf(np.linspace(-5,5,100), loc=0, scale=1), color="black")
+plt.plot(np.linspace(-5,5,100), norm.pdf(np.linspace(-5,5,100), loc=0, scale=2), color="red")
+plt.plot(np.linspace(-5,5,100), norm.pdf(np.linspace(-5,5,100), loc=0, scale=0.5), color="blue")
+plt.show()
+
+
+norm.cdf(0, loc=0, scale=1)
+norm.cdf(100, loc=0, scale=1)
+norm.cdf(0.54, loc=0, scale=1) - norm.cdf(-2, loc=0, scale=1)
+norm.cdf(1, loc=0, scale=1) + (1-norm.cdf(3, loc=0, scale=1))
+
+norm.cdf(5, loc=3, scale=5) - norm.cdf(3, loc=3, scale=5)
+
+norm.rvs(loc=0, scale=1, size=100)
+
+from scipy.stats import norm
+import numpy as np
+sum(norm.rvs(loc=0, scale=1, size=1000)<0)/1000
+np.mean(norm.rvs(loc=0, scale=1, size=1000) < 0)
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+plt.clf()
+sns.histplot(norm.rvs(loc=3, scale=2, size=1000))
+plt.show()
+
+plt.clf()
+sns.histplot(norm.rvs(loc=3, scale=2, size=1000), stat="density")
+plt.show()
+
+plt.clf()
+sns.histplot(norm.rvs(loc=3, scale=2, size=1000), stat="frequency")
+plt,show()
+
+
+
+
+# ------------------
+
+plt.clf()
+x = norm.rvs(loc=3, scale=2, size=1000)
+sns.histplot(x, stat="density")
+plt.show()
+
+plt.clf()
+x = norm.rvs(loc=3, scale=2, size=1000)
+sns.histplot(x, stat="density")
+xmin,xmax = (x.min(), x.max())
+x_values= np.linspace(xmin, xmax, 100)
+pdf_values = norm.pdf(x_values, loc=3, scale=2)
+plt.plot(x_values, pdf_values, color='red', linewidth=2, zorder=3)
+plt.xlim([-10,10])
+plt.ylim([0,0.3])
+plt.show()
+
+from scipy.stats import binom
+x_1 = binom.rvs(n=30, p=0.26, size=3)
+x_1
+plt.clf()
+sns.barplot(x=np.arange(31),  y=binom.pmf(np.arange(31), n=30, p=0.26), color='blue', zorder=1)
+plt.scatter(x_1, np.repeat(0.003,3), color='red', zorder=10, s=10)
+sns.barplot(x=30*0.26, y=binom.pmf(30*0.26, n=30, p=0.26) , color='yellow', zorder=11)
+plt.axvline(x=30*0.26, color='green', linestyle='--', linewidth=2)
+plt.show()
+
+
+# 07/26
+from scipy.stats import uniform
+uniform.rvs(loc=2, scale=4, size=1)
+
+import numpy as np
+x=np.linspace(0,8,100)
+u_pdf = uniform.pdf(x, loc=0, scale=1)
+uniform.cdf(3.25, loc=2, scale=4)
+
+uniform.cdf(8.39, loc=2, scale=4) - uniform.cdf(5, loc=2, scale=4)
+uniform.ppf(0.93,loc=2,scale=4)
+
+uniform.rvs(loc=2, scale=4, size=20, random_state=42).mean()
+
+from scipy.stats import norm
+norm.rvs(loc=2, scale=4, size=20, random_state=42)
+
+
+x=uniform.rvs(loc=2, scale=4, size=20*1000, random_state=42)
+x = x.reshape(-1,20)
+x.shape
+x.mean(axis=1)
+
+x.mean(axis=1).shape
+
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+plt.clf()
+sns.histplot(x.mean(axis=1))
+plt.show()
+
+uniform.var(loc=2,scale=4)
+uniform.expect(loc=2, scale=4)
+
+
+
+
+
+
+
+
+x=uniform.rvs(loc=2, scale=4, size=20*1000, random_state=42)
+x = x.reshape(-1,20)
+blue_x = x.mean()
+
+xmin, xmax = (blue_x.min(), blue_x.max())
+
+plt.clf()
+x_values = np.linspace(3, 6, 100)
+pdf_values = norm.pdf(x_values, loc=4, scale=np.sqrt(1.3333333/20))
+plt.plot(x_values, pdf_values, color='red', linewidth=2)
+plt.axvline(x=4, color='green', linestyle='--', linewidth=2)
+# 표본평균(파란 벽돌) 점찍기
+plt.scatter(uniform.rvs(loc=2, scale=4, size=20).mean(), y=0.02, color='blue', zorder=10, s=10)
+x1=(blue_x + 2.57*np.sqrt(1.3333333/20))
+x2=(blue_x - 2.57*np.sqrt(1.3333333/20))
+# x1=(blue_x + 1.96*np.sqrt(1.3333333/20))  # 1.96 = norm.ppf(0.975, loc=0, scale=1*)
+# x2=(blue_x - 1.96*np.sqrt(1.3333333/20))
+# plt.axvline(x=blue_x+0.665 , color='blue', linestyle='--', linewidth=1)
+# plt.axvline(x=blue_x-0.665 , color='blue', linestyle='--', linewidth=1)
+plt.axvline(x=x1, color='blue', linestyle='--', linewidth=1) # 2.57은 이론 상 나온 정해진 값임.
+plt.axvline(x=x2, color='blue', linestyle='--', linewidth=1)
+plt.xlim([3,5])
+plt.show()
+
+
+
+
+
+
+
+
+norm.ppf(0.025, loc=4, scale=np.sqrt(1.3333333/20))
+norm.ppf(0.975, loc=4, scale=np.sqrt(1.3333333/20))
+
+norm.ppf(0.005, loc=4, scale=np.sqrt(1.3333333/20))
+norm.ppf(0.995, loc=4, scale=np.sqrt(1.3333333/20))
+
+
+(4-norm.ppf(0.025, loc=4, scale=np.sqrt(1.3333333/20))) / np.sqrt(1.3333333/20)
+
+# lec4에서 이어서 하겠음
