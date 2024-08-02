@@ -452,3 +452,289 @@ df.head()
 
 
 
+# 7/31 수업 (복사 붙여넣기 하기)
+
+from scipy.stats import norm
+x = norm.ppf(0.25, loc=3, scale=7)
+z = norm.ppf(0.25, loc=0, scale=1)
+3 + z * 7
+x  # x = 3+z*7
+
+norm.cdf(5, loc=3, scale=7)
+norm.cdf(2/7, loc=0, scale=1)
+
+norm.ppf(0.975, loc=0, scale=1)
+
+
+
+# 방법1
+z = norm.rvs(loc=0, scale=1, size=1000)
+x = norm.rvs(loc=3, scale=np.sqrt(2), size=1000)
+z_min, z_max = (z.min(), z.max())
+x_min, x_max = (x.min(), x.max())
+plt.clf()
+sns.histplot(z, stat='density')
+sns.histplot(x, stat='density', color='grey', zorder=10)
+plt.plot(np.linspace(z_min,z_max,500), norm.pdf(np.linspace(z_min,z_max,500), loc=0, scale=1), color='red')
+plt.plot(np.linspace(x_min,x_max,500), norm.pdf(np.linspace(x_min,x_max,500), loc=3, scale=np.sqrt(2)), color='red')
+plt.show()
+
+
+# 방법2
+z = np.sort(norm.rvs(loc=0, scale=1, size=1000))
+plt.clf()
+sns.histplot(z, stat='density')
+plt.plot(z, norm.pdf(z, loc=0, scale=1), color='red')
+plt.show()
+
+
+
+
+# x ~ N(μ, σ^2) , (x-μ)/σ ~ N(0,1) 분포가 맞는지 확인
+x = norm.rvs(loc=5, scale=3, size=1000)
+z = (x-5)/3
+z_min, z_max = (z.min(), z.max())
+z2 = np.linspace(z_min, z_max, 500)
+plt.clf()
+sns.histplot(z, stat='density')
+plt.plot(z2, norm.pdf(z2, loc=0, scale=1), color='red')
+plt.rcParams['axes.unicode_minus'] = False
+plt.show()
+
+
+
+# x ~ N(μ, σ^2) , x_bar ~ N(μ, σ^2/n) 분포가 맞는지 확인
+x = norm.rvs(loc=5, scale=3, size=1000*20)
+x = x.reshape(-1,20)
+x_bar = x.mean(axis=1)
+x_bar_min, x_bar_max = (x_bar.min(), x_bar.max())
+x2 = np.linspace(x_bar_min, x_bar_max, 500)
+
+plt.clf()
+sns.histplot(x_bar, stat='density')
+plt.plot(x2, norm.pdf(x2,loc=5, scale=3/np.sqrt(20)), color='red')
+plt.show()
+
+
+# x ~ ?(μ, σ^2) , x_bar ~=  N(μ, σ^2/n) 분포가 맞는지 확인
+from scipy.stats import uniform
+x = uniform.rvs(loc=2, scale=6, size=1000*20)
+mu = uniform.expect(loc=2, scale=6)
+sigma = uniform.std(loc=2, scale=6)
+x = x.reshape(-1,20)
+x_bar = x.mean(axis=1)
+x_bar_min, x_bar_max = (x_bar.min(), x_bar.max())
+x2 = np.linspace(x_bar_min, x_bar_max, 500)
+
+plt.clf()
+sns.histplot(x_bar, stat='density')
+plt.plot(x2, norm.pdf(x2, loc=mu, scale=sigma/np.sqrt(20)), color='red')
+plt.show()
+
+
+# y ~ Bernoulli(p) , x = sum(y) ~ B(n,p) , {(x/n) - p} / {p(1-p)/n} ~ N(0,1) (단, np≥5 or n(1-p)≥5) 분포가 맞는지 확인
+from scipy.stats import binom, norm
+x = binom.rvs(n=20, p=1/4, size=1000)
+x_n = x/20
+mu = binom.expect(args=(20,1/4))/20  # <- p와 값이 같아짐
+sigma = binom.std(n=20,p=1/4) / 20  # <- sqrt(p(1-p)/n)와 값이 같아짐
+z = (x-mu)/sigma
+z_min, z_max = (z.min(),z.max())
+z2 = np.linspace(z_min, z_max, 500)
+
+plt.clf()
+sns.histplot(z, stat='density')
+plt.plot(z2, norm.pdf(z2, loc=0, scale=1), color='red')
+plt.show()
+
+
+
+# x ~ N(μ, σ^2) , x_bar ~ N(μ, σ^2/n) , (x_bar - μ)/(σ/sqrt(n)) ~ N(0,1)
+from scipy.stats import norm
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+x = norm.rvs(loc=5, scale=3, size=1000*20)
+x = x.reshape(-1,20)
+x_bar = x.mean(axis=1)
+z = (x_bar - 5)/(3/np.sqrt(20))
+z_min, z_max = (z.min(), z.max())
+z2 = np.linspace(z_min, z_max, 500)
+
+plt.clf()
+sns.histplot(z, stat='density')
+plt.plot(z2, norm.pdf(z2,loc=0, scale=1), color='red')
+plt.show()
+
+
+
+# 질문2 : x ~ N(μ, σ^2) , x_bar ~ N(μ, s^2/n) , (x_bar - μ)/(s/sqrt(n)) ~ t(표본갯수 n-1)
+# 안 맞는 것 같은데...
+from scipy.stats import t
+x_sample = norm.rvs(loc=5, scale=3, size=20)
+s_sample = np.std(x_sample, ddof=1)
+
+x = norm.rvs(loc=5, scale=3, size=1000*20)
+x = x.reshape(-1,20)
+x_bar = x.mean(axis=1)
+z = (x_bar - 5)/(s_sample/np.sqrt(20))
+z_min, z_max = (z.min(), z.max())
+z2 = np.linspace(z_min, z_max, 500)
+
+plt.clf()
+sns.histplot(z, stat='density')
+plt.plot(z2, t.pdf(z2, df=19), color='red')
+plt.show()
+
+
+
+
+#지금 이게 t분포 본거야? yes
+x = norm.rvs(loc=5, scale=3, size=10)  # size가 커질 수록 표준정규분포에서 덜 떨어지는 것 같음. 가까워지는 것 같음. 
+s = np.std(x, ddof=1)  # 모표준편차가 3인데 그 언저리로 표본표준편차는 2.48 나옴. (표본표준편차는 돌릴 때마다 달라질 것임.)
+x2 = norm.rvs(loc=5, scale=3, size=1000)
+z = (x2-5)/s
+z_min, z_max = (z.min(), z.max())
+z2 = np.linspace(z_min, z_max, 600)
+plt.clf()
+sns.histplot(z, stat='density')
+plt.plot(z2, norm.pdf(z2, loc=0, scale=1), color='red')
+plt.show()
+
+
+
+
+
+
+# 질문  : 그럼 t1은 어떤 분포를 따르는지 t분포 선 그래프를 어떻게 그릴 수 있지?
+# 히스토그램은 표준정규분포보다 작어졌다가 커졌다가 계속 바뀌는데, 특정 t분포를 따를 수가 있나?
+from scipy.stats import t
+x_sample = norm.rvs(loc=0, scale=1, size=10)
+s_sample = np.std(x_sample, ddof=1)
+
+x = norm.rvs(loc=0, scale=1, size=1000)  # 히스토그램 x축 계산할 때 이용
+t1 = (x-5)/s_sample  # 히스토그램 x축
+t1_min, t1_max = (t1.min(), t1.max())
+t2 = np.linspace(t1_min, t1_max, 600)  # 표준정규분포 x축 
+plt.clf()
+sns.histplot(t1, stat='density')
+plt.plot(t2, t.pdf(t2, df=1), color='red')   # 여기서도 df가 n-1임?
+plt.plot(t2, norm.pdf(t2, loc=0, scale=1), color='black')
+plt.show()
+
+
+
+
+
+# 위에 꺼랑 비교 
+x2 = norm.rvs(loc=5, scale=3, size=1000)
+z = (x2-5)/3
+z_min, z_max = (z.min(), z.max())
+z2 = np.linspace(z_min, z_max, 600)
+plt.clf()
+sns.histplot(z, stat='density')
+plt.plot(z2, norm.pdf(z2, loc=0, scale=1), color='red')
+plt.show()
+
+
+
+
+
+
+
+
+# t분포
+from scipy.stats import t
+t_values = np.linspace(-4,4, 100)
+z2 = np.linspace(-4, 4, 100)
+
+plt.clf()
+plt.plot(t_values, t.pdf(t_values, df=5), color='red', linewidth=2)  # t(4)
+plt.plot(t_values, t.pdf(t_values, df=1), color='blue', linewidth=2)
+plt.plot(z2, norm.pdf(z2, loc=0, scale=1), color='black')  # 표준정규분포
+plt.show()
+
+
+
+x=norm.rvs(loc=15, scale=3, size=16, random_state=42)
+x
+
+x_bar = x.mean()
+n=len(x)
+x_bar + t.ppf(0.975, df=n-1)*np.std(x, ddof=1)/np.sqrt(n)
+x_bar - t.ppf(0.975, df=n-1)*np.std(x, ddof=1)/np.sqrt(n)
+
+
+
+
+
+# 질문 : x ~ ?(μ, σ^2) , x_bar ~ N(μ, σ^2/n) <- 여기서 n은 x_bar 1개를 구할 때 쓰인 x의 갯수?
+x = norm.rvs(loc=5, scale=3, size=1000*20)
+x = x.reshape(-1,20)
+x_bar = x.mean(axis=1)
+x_bar_min , x_bar_max = (x_bar.min(), x_bar.max())
+z = np.linspace(x_bar_min, x_bar_max, 1000)
+
+plt.clf()
+sns.histplot(x_bar, stat='density')
+plt.plot(z, norm.pdf(z,loc=5, scale=3/np.sqrt(20)), color='red')  # <- np.sqrt(20)이 맞아?
+plt.show()
+
+
+# 직선의 방정식
+# y = ax+b
+# y = 2x+3
+a = 2
+b = 3
+x = np.linspace(-5,5,20)
+y = a*x +b
+
+
+plt.clf()
+plt.plot(x, y)
+plt.axvline(x=0, color='black')
+plt.axhline(y=0, color='black')
+plt.show()
+
+
+
+# 08/02 수업
+import numpy as np
+from scipy.optimize import minimize
+
+# 최소값을 찾을 다변수 함수 정의
+def my_f(x):
+    return x**2+3
+# 초기 추정값
+initial_guess = [1]
+#최소값 찾기
+result = minimize(my_f, initial_guess)
+print("최소값:", result.fun)
+print("최소값을 갖는 x 값:", result.x)
+
+
+# 최소값을 찾을 다변수 함수 정의
+def my_f2(x):
+    return x[0]**2 + x[1]**2 +3
+# 초기 추정값
+initial_guess = [1,3]
+#최소값 찾기
+result = minimize(my_f2, initial_guess)
+print("최소값:", result.fun)
+print("최소값을 갖는 x 값:", result.x)
+
+
+
+
+# 최소값을 찾을 다변수 함수 정의
+def my_f3(x):
+    return (x[0]-1)**2 + (x[1]-2)**2 + (x[2]-4)**2+7
+# 초기 추정값
+initial_guess = [-10,2,4]
+#최소값 찾기
+result = minimize(my_f2, initial_guess)
+print("최소값:", result.fun)
+print("최소값을 갖는 x 값:", result.x)
+   
+   
+
