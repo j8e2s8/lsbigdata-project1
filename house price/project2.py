@@ -682,3 +682,33 @@ f(test_df['GrLivArea'],test_df['nonna_test']).isna().sum()
 
 
 
+# 변수 2개 다른걸로 해보기
+train_x = train_df[['GrLivArea', 'OverallQual']]
+train_y = train_df['SalePrice']
+
+model = LinearRegression()
+model.fit(x,y)
+train_y_pred = model.predict(train_x)
+
+test_x = test_df[['GrLivArea', 'OverallQual']]
+test_x.isna().sum()
+test_y_pred = model.predict(test_x)
+
+submission['SalePrice'] = test_y_pred
+submission.to_csv('./house price/sample_submission_line11.csv', index=False)
+
+
+# 변수 2개 다른걸로 해보기 (하다 맒)
+train_x = train_df[['GrLivArea', 'GarageArea']]
+train_y = train_df['SalePrice']
+
+model = LinearRegression()
+model.fit(x,y)
+train_y_pred = model.predict(train_x)
+
+test_x = test_df[['GrLivArea', 'GarageArea']]
+test_x.isna().sum()
+test_y_pred = model.predict(test_x)
+
+submission['SalePrice'] = test_y_pred
+submission.to_csv('./house price/sample_submission_line11.csv', index=False)

@@ -538,7 +538,7 @@ x = binom.rvs(n=20, p=1/4, size=1000)
 x_n = x/20
 mu = binom.expect(args=(20,1/4))/20  # <- p와 값이 같아짐
 sigma = binom.std(n=20,p=1/4) / 20  # <- sqrt(p(1-p)/n)와 값이 같아짐
-z = (x-mu)/sigma
+z = (x_n-mu)/sigma
 z_min, z_max = (z.min(),z.max())
 z2 = np.linspace(z_min, z_max, 500)
 
