@@ -1,8 +1,12 @@
-
+# house price
 import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
+import matplotlib.pyplot as plt
 
 # 데이터 불러오기
 train_df = pd.read_csv('./house price/train.csv')
+train_loc_df = pd.read_csv('./house price/houseprice-with-lonlat.csv')
 test_df = pd.read_csv('./house price/test.csv')
 submission = pd.read_csv('./house price/sample_submission.csv')
 
@@ -10,6 +14,41 @@ submission = pd.read_csv('./house price/sample_submission.csv')
 #sample_submission.head()
 
 #sample_submission.to_csv('house price/sample_submission.csv' , index = False)
+
+
+
+
+# 컬럼 알아보기
+cols = train_df.columns
+train_df[train_df['MSSubClass'] == 20]['YearBuilt'].sort_values()  # 'MSSubClass'=20은 1938, 1946~2010에 지어진 집임
+train_df[train_df['MSSubClass'] == 30]['YearBuilt'].sort_values()  # 'MSSubClass'=30은 1885, 1910~1945, 1948에 지어진 집임
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 price_mean = df['SalePrice'].mean()
@@ -699,11 +738,12 @@ submission.to_csv('./house price/sample_submission_line11.csv', index=False)
 
 
 # 변수 2개 다른걸로 해보기 (하다 맒)
+from sklearn.linear_model import LinearRegression
 train_x = train_df[['GrLivArea', 'GarageArea']]
 train_y = train_df['SalePrice']
 
 model = LinearRegression()
-model.fit(x,y)
+model.fit(train_x,train_y)
 train_y_pred = model.predict(train_x)
 
 test_x = test_df[['GrLivArea', 'GarageArea']]
@@ -711,4 +751,234 @@ test_x.isna().sum()
 test_y_pred = model.predict(test_x)
 
 submission['SalePrice'] = test_y_pred
-submission.to_csv('./house price/sample_submission_line11.csv', index=False)
+submission.to_csv('./house price/sample_submission_line12.csv', index=False)
+
+
+
+# 모든 수치컬럼을 가지고 linearregression 해보기
+train_df.info()
+numeric_df = train_df.select_dtypes(include = [int, float])
+numeric_df.info()
+train_x = numeric_df.iloc[:,1:-1]  # ID와 SalePrice 컬럼 제거함
+train_y = train_df['SalePrice']
+
+train_x.isna().sum()  # LotFrontage, MasVnrArea, GarageYrBlt 결측치 대체하기
+
+train_x['LotFrontage'] = train_x['LotFrontage'].fillna(train_x['LotFrontage'].mean())
+train_x['MasVnrArea'] = train_x['MasVnrArea'].fillna(train_x['MasVnrArea'].mean())
+train_x['GarageYrBlt'] = train_x['GarageYrBlt'].fillna(train_x['GarageYrBlt'].mean())
+
+train_x.isna().sum()
+
+
+model = LinearRegression()
+model.fit(train_x, train_y)
+train_y_pred = model.predict(train_x)
+
+print("MSE :", sum((train_y_pred - train_y)**2))
+
+numeric_test_x = test_df.select_dtypes(include = [int,float])
+numeric_test_x = numeric_test_x.iloc[:,1:]
+
+numeric_test_x.isna().sum()  # LotFrontage, MasVnrArea, BsmtFinSF1, BsmtFinSF2, BsmtUnfSF, TotalBsmtSF, BsmtFullBath, BsmtHalfBath, GarageYrBlt, GarageCars, GarageArea
+numeric_test_x['LotFrontage'] = numeric_test_x['LotFrontage'].fillna(numeric_test_x['LotFrontage'].mean())
+numeric_test_x['MasVnrArea'] = numeric_test_x['MasVnrArea'].fillna(numeric_test_x['MasVnrArea'].mean())
+numeric_test_x['BsmtFinSF1'] = numeric_test_x['BsmtFinSF1'].fillna(numeric_test_x['BsmtFinSF1'].mean())
+numeric_test_x['BsmtFinSF2'] = numeric_test_x['BsmtFinSF2'].fillna(numeric_test_x['BsmtFinSF2'].mean())
+numeric_test_x['BsmtUnfSF'] = numeric_test_x['BsmtUnfSF'].fillna(numeric_test_x['BsmtUnfSF'].mean())
+numeric_test_x['TotalBsmtSF'] = numeric_test_x['TotalBsmtSF'].fillna(numeric_test_x['TotalBsmtSF'].mean())
+numeric_test_x['BsmtFullBath'] = numeric_test_x['BsmtFullBath'].fillna(numeric_test_x['BsmtFullBath'].mean())
+numeric_test_x['BsmtHalfBath'] = numeric_test_x['BsmtHalfBath'].fillna(numeric_test_x['BsmtHalfBath'].mean())
+numeric_test_x['GarageYrBlt'] = numeric_test_x['GarageYrBlt'].fillna(numeric_test_x['GarageYrBlt'].mean())
+numeric_test_x['GarageCars'] = numeric_test_x['GarageCars'].fillna(numeric_test_x['GarageCars'].mean())
+numeric_test_x['GarageArea'] = numeric_test_x['GarageArea'].fillna(numeric_test_x['GarageArea'].mean())
+
+numeric_test_x.isna().sum()
+
+
+test_y_pred = model.predict(numeric_test_x)
+submission['SalePrice'] = test_y_pred
+submission.to_csv('./house price/sample_submission_line_numeric_fillnamean_240805.csv', index=False)
+
+
+
+
+# 다른 방식으로 결측치 대체
+merge_train = train_df.copy()
+
+# LotFrontage 결측치 대체
+merge_train.loc[merge_train['LotFrontage'].isna()==True, ['LotFrontage', 'Street']]  
+group1 = train_df.groupby('Street', as_index=False).agg(lotfrontage_mean = ('LotFrontage', 'mean'))
+merge_train['LotFrontage'] = np.where((merge_train['LotFrontage'].isna() == True) & (merge_train['Street']=='Grvl'), 85.400000,
+                                np.where((merge_train['LotFrontage'].isna() == True) & (merge_train['Street']=='Pave'), 69.985786, merge_train['LotFrontage']))
+merge_train['LotFrontage'].isna().sum()  # 결측값 0개됨.
+
+
+# MasVnrArea 결측치 대체
+merge_train.loc[merge_train['MasVnrArea'].isna() == True, ['MasVnrArea', 'MasVnrType']]  # 'MasVnrArea', 'MasVnrType' 둘다 동일하게 결측치가 존재하기 때문에 MasVnrType 범주 기준으로 결측치 대체가 어려움. Exterior1st 범주 기준으로 결측치 대체하기로 함.
+
+group2 = train_df.groupby('Exterior1st', as_index=False).agg(MasVnrArea_mean = ('MasVnrArea','mean'))
+merge_train['MasVnrArea'].isna().sum() # 결측치가 8개 있음
+merge_train.loc[merge_train['MasVnrArea'].isna() == True, :]
+merge_train['MasVnrArea'] =  np.where((merge_train['MasVnrArea'].isna()==True) & (merge_train['Exterior1st'] == 'VinylSd'), 136.300000,
+                             np.where((merge_train['MasVnrArea'].isna()==True) & (merge_train['Exterior1st'] == 'Wd Sdng'), 43.375610, 
+                             np.where((merge_train['MasVnrArea'].isna()==True) & (merge_train['Exterior1st'] == 'CemntBd'), 144.440678, merge_train['MasVnrArea'])))
+
+merge_train['MasVnrArea'].isna().sum()  # 결측치가 0개가 됨.
+
+
+
+# GarageYrBlt 결측치 대체 (하던거)
+merge_train.loc[merge_train['GarageYrBlt'].isna() == True, ['GarageYrBlt', 'GarageType','GarageFinish','GarageQual']]  # 'GarageYrBlt'는 garage 관련 변수들은 모두 결측치이기 때문에 관련 컬럼의 범주 기준으로 결측치 대체가 어려움. 전체 평균으로 대체 
+merge_train['GarageYrBlt'].isna().sum()  # 결측치가 81개있음.
+merge_train['GarageYrBlt'] = merge_train['GarageYrBlt'].fillna(merge_train['GarageYrBlt'].mean())
+merge_train['GarageYrBlt'].isna().sum() # 결측치가 0개 됨.
+
+
+
+numeric_df = merge_train.select_dtypes(include = [int, float])
+numeric_df.info()
+train_x = numeric_df.iloc[:,1:-1]  # ID와 SalePrice 컬럼 제거함
+train_y = train_df['SalePrice']
+
+train_x.isna().sum()  # 결측치가 0개임.
+
+
+model = LinearRegression()
+model.fit(train_x, train_y)
+train_y_pred = model.predict(train_x)
+
+print("MSE :", sum((train_y_pred-train_y)**2))
+
+
+
+
+merge_test = test_df.copy()
+merge_test['LotFrontage'].isna().sum() # 결측치 227개
+
+group4 = merge_test.groupby('Street', as_index=False).agg(lotfrontage_mean = ('LotFrontage', 'mean'))
+merge_test['LotFrontage'] = np.where((merge_test['LotFrontage'].isna() == True) & (merge_test['Street']=='Grvl'), 91.000000,
+                                np.where((merge_test['LotFrontage'].isna() == True) & (merge_test['Street']=='Pave'), 68.488998, merge_test['LotFrontage']))
+merge_test['LotFrontage'].isna().sum()  # 결측값 0개됨.
+
+
+
+group5 = test_df.groupby('Exterior1st', as_index=False).agg(MasVnrArea_mean = ('MasVnrArea','mean'))
+merge_test['MasVnrArea'].isna().sum() # 결측치가 15개 있음
+merge_test.loc[merge_test['MasVnrArea'].isna() == True, 'Exterior1st']
+merge_test['MasVnrArea'] =  np.where((merge_test['MasVnrArea'].isna()==True) & (merge_test['Exterior1st'] == 'VinylSd'), 124.637827,
+                             np.where((merge_test['MasVnrArea'].isna()==True) & (merge_test['Exterior1st'] == 'WdShing'), 38.344828, 
+                             np.where((merge_test['MasVnrArea'].isna()==True) & (merge_test['Exterior1st'] == 'CemntBd'), 158.265625, merge_test['MasVnrArea'])))
+
+merge_test['MasVnrArea'].isna().sum()  # 결측치가 0개가 됨.
+
+
+
+
+merge_test.loc[merge_test['GarageYrBlt'].isna() == True, ['GarageYrBlt', 'GarageType','GarageFinish','GarageQual']]  # 'GarageYrBlt'는 garage 관련 변수들은 모두 결측치이기 때문에 관련 컬럼의 범주 기준으로 결측치 대체가 어려움. 전체 평균으로 대체 
+merge_test['GarageYrBlt'].isna().sum()  # 결측치가 78개있음.
+merge_test['GarageYrBlt'] = merge_test['GarageYrBlt'].fillna(merge_test['GarageYrBlt'].mean())
+merge_test['GarageYrBlt'].isna().sum() # 결측치가 0개 됨.
+
+
+
+numeric_test_x = merge_test.select_dtypes(include = [int,float])
+numeric_test_x.columns
+numeric_test_x = numeric_test_x.iloc[:,1:]
+
+numeric_test_x.isna().sum()  # BsmtFinSF1, BsmtFinSF2, BsmtUnfSF, TotalBsmtSF, BsmtFullBath, BsmtHalfBath, GarageCars, GarageArea
+numeric_test_x['BsmtFinSF1'] = numeric_test_x['BsmtFinSF1'].fillna(numeric_test_x['BsmtFinSF1'].mean())
+numeric_test_x['BsmtFinSF2'] = numeric_test_x['BsmtFinSF2'].fillna(numeric_test_x['BsmtFinSF2'].mean())
+numeric_test_x['BsmtUnfSF'] = numeric_test_x['BsmtUnfSF'].fillna(numeric_test_x['BsmtUnfSF'].mean())
+numeric_test_x['TotalBsmtSF'] = numeric_test_x['TotalBsmtSF'].fillna(numeric_test_x['TotalBsmtSF'].mean())
+numeric_test_x['BsmtFullBath'] = numeric_test_x['BsmtFullBath'].fillna(numeric_test_x['BsmtFullBath'].mean())
+numeric_test_x['BsmtHalfBath'] = numeric_test_x['BsmtHalfBath'].fillna(numeric_test_x['BsmtHalfBath'].mean())
+numeric_test_x['GarageCars'] = numeric_test_x['GarageCars'].fillna(numeric_test_x['GarageCars'].mean())
+numeric_test_x['GarageArea'] = numeric_test_x['GarageArea'].fillna(numeric_test_x['GarageArea'].mean())
+
+numeric_test_x.isna().sum()
+
+test_y_pred = model.predict(numeric_test_x)
+
+submission['SalePrice'] = test_y_pred
+submission.to_csv('./house price/sample_submission_line_fillna2_240805.csv', index=False)
+
+
+
+# 실습
+
+center_x = train_loc_df['Longitude'].median()
+center_y = train_loc_df['Latitude'].median()
+
+# 흰도화지 map 불러오기
+map_sig = folium.Map(location = [center_y, center_x], zoom_start=12, tiles="cartodbpositron")
+map_sig.save("./house price/map_seoul.html")  # 돌리면 프로젝트 폴더에 html 파일 생김. 들어가면 지도 나옴.
+
+
+# 코로플릿 <- 구 경계선 그리기
+folium.Choropleth(
+    geo_data=geo,
+    data=df_seoulpop,
+    columns = ("code", "pop"),
+    key_on = "feature.properties.SIG_CD").add_to(map_sig)
+
+map_sig.save("map_seoul.html")
+
+bins = list(train_loc_df['SalePrice'].quantile([0, 0.2, 0.4, 0.6, 0.8, 1]))  # 하위 0, 하위 0.2, 하위 0.4, 하위 0.6 ,... 에 해당하는 값을 반환해줌.
+bins
+
+folium.Choropleth(
+    geo_data=geo,
+    data=df_seoulpop,
+    columns = ("code", "pop"),
+    key_on = "feature.properties.SIG_CD",
+    bins = bins).add_to(map_sig)
+
+map_sig.save("map_seoul.html")
+
+
+
+folium.Choropleth(
+    geo_data=geo,
+    data=df_seoulpop,
+    columns = ("code", "pop"),
+    key_on = "feature.properties.SIG_CD",
+    fill_color = 'viridis',
+    bins = bins).add_to(map_sig)
+
+map_sig.save("map_seoul.html")
+
+
+# 점 찍는 법
+
+# 방법1    
+for _, row in train_loc_df.iterrows():
+    folium.Marker(location=[row['Latitude'], row['Longitude']] ).add_to(map_sig)
+map_sig.save("./house price/map_seoul.html")
+
+# 방법2
+for i in range(len(train_loc_df)):
+    folium.Marker(location=[float(train_loc_df['Latitude'][i]), float(train_loc_df['Longitude'][i])]).add_to(map_sig)
+map_sig.save("./house price/map_seoul.html")    
+
+# 방법3
+for lat, lon in zip(train_loc_df['Latitude'])
+
+
+
+def df_seoul(num):
+    gu_name=geo['features'][num]['properties']['SIG_KOR_NM']
+    coordinate_array = np.array(geo['features'][num]['geometry']['coordinates'][0][0])
+    x = coordinate_array[:,0]
+    y = coordinate_array[:,1]
+    return pd.DataFrame({'gu_name' : gu_name, 'x' : x, 'y': y})
+    
+df_seoul(12)
+
+
+from folim.plugins import MarkerCluster
+
+
+marker_cluster = MarkerCluster().add_to(map_sig)
+
+for i in range(len())
