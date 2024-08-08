@@ -32,9 +32,10 @@ train_df[train_df['MSSubClass'] == 30]['YearBuilt'].sort_values()  # 'MSSubClass
 
 
 
+# 중복 집 알아보기
+train_loc_df[['Longitude','Latitude']].value_counts().sort_values()
 
-
-
+train_loc_df[['Longitude','Latitude']]
 
 
 
@@ -982,3 +983,341 @@ from folim.plugins import MarkerCluster
 marker_cluster = MarkerCluster().add_to(map_sig)
 
 for i in range(len())
+
+
+
+# 0808 수업 : 인터랙티브 시각화
+#!pip install plotly
+import plotly.graph_objects as go
+import plotly.express as px
+import pandas as pd
+
+df_covid19_100 = pd.read_csv('./data/df_covid19_100.csv')
+df_covid19_100.info()
+
+
+#속성은 data, layout, frame 3개있음
+
+fig = go.Figure(  # 그림을 그릴 건데 () 안에 data 속성을 입력해줄거임. 근데 data 속성(dict :트레이스)을 2개 입력해줄 거임. 그럼 그래프 2개 겹쳐서 나옴. 속성(dict:트레이스) 1개만 입력해줘도 됨. 그럼 그래프 1개만 나옴.
+    data = [ # dict가 여러개일 때는 리스트로 묶어줌.
+        {'type' : 'scatter',
+         'mode' : 'markers',
+         'x' : df_covid19_100.loc[df_covid19_100['iso_code'] == 'KOR', 'date'],
+         'y' : df_covid19_100.loc[df_covid19_100['iso_code'] == 'KOR', 'new_cases'],
+         'marker' : {'color' : 'red'}
+        },
+        {'type' : 'scatter',
+         'mode' : 'lines',
+         'x' : df_covid19_100.loc[df_covid19_100['iso_code'] == 'KOR', 'date'],
+         'y' : df_covid19_100.loc[df_covid19_100['iso_code'] == 'KOR', 'new_cases'],
+         'line' : {'color' : 'red', 'dash' : 'dash'}
+        }]
+    , layout =  ## layout 속성이 1개밖에 없으니까 리스트로 안 묶어줌.
+        {'title' : "코로나19 발생 현황",
+         'xaxis' : {'title': '날짜', 'showgrid' : False},
+         'yaxis' : {'title' : '확진자수'},
+         'margin' :{ "l" : 25, "r" : 25, "t" : 50, "b" : 25}  # l : 왼쪽 여백, r : 오른쪽 여백, t : 위 여백, b : 아래 여백 
+        }
+    ).show()
+    
+    # 그림 보는법
+    # zoom 하고 원하는 영역 지정하면 거기 확대해줌. 그리고 아무대나 더블 클릭하면 다시 돌아감.
+    
+    # frame : 애니메이션 기능
+    # for문으로 각 장면을 만들어서 움직이게 보이도록 돌려주는 것임.
+    
+    
+    
+
+
+#프레임속성========
+# 애니메이션 프레임 생성
+frames = []
+dates = df_covid19_100.loc[df_covid19_100["iso_code"] == "KOR", "date"].unique()
+
+for date in dates:
+    frame_data = {
+        "data": [
+            {
+                "type": "scatter",
+                "mode": "markers",
+                "x": df_covid19_100.loc[(df_covid19_100["iso_code"] == "KOR") & (df_covid19_100["date"] <= date), "date"],
+                "y": df_covid19_100.loc[(df_covid19_100["iso_code"] == "KOR") & (df_covid19_100["date"] <= date), "new_cases"],
+                "marker": {"color": "red"}
+            },
+            {
+                "type": "scatter",
+                "mode": "lines",
+                "x": df_covid19_100.loc[(df_covid19_100["iso_code"] == "KOR") & (df_covid19_100["date"] <= date), "date"],
+                "y": df_covid19_100.loc[(df_covid19_100["iso_code"] == "KOR") & (df_covid19_100["date"] <= date), "new_cases"],
+                "line": {"color": "blue", "dash": "dash"}
+            }
+        ],
+        "name": str(date)
+    }
+    frames.append(frame_data)
+    
+len(frames)  # 2022-10-03 ~ 2023-01-11 동안 반복해서 101개 값을 가짐.
+
+
+
+# x축과 y축의 범위 설정
+x_range = ['2022-10-03', '2023-01-11']
+y_range = [8900, 88172]
+
+
+# 애니메이션을 위한 레이아웃 설정
+layout = {
+    "title": "코로나 19 발생현황",
+    "xaxis": {"title": "날짜", "showgrid": False, "range": x_range},
+    "yaxis": {"title": "확진자수", "range": y_range},
+    "margin": {"l": 25, "r": 25, "t": 50, "b": 50},
+    "updatemenus": [{
+        "type": "buttons",
+        "showactive": False,
+        "buttons": [{
+            "label": "Play",
+            "method": "animate",
+            "args": [None, {"frame": {"duration": 500, "redraw": True}, "fromcurrent": True}]
+        }, {
+            "label": "Pause",
+            "method": "animate",
+            "args": [[None], {"frame": {"duration": 0, "redraw": False}, "mode": "immediate", "transition": {"duration": 0}}]
+        }]
+    }]
+}
+
+# Figure 생성
+fig = go.Figure(
+    data=[
+        {
+            "type": "scatter",
+            "mode": "markers",
+            "x": df_covid19_100.loc[df_covid19_100["iso_code"] == "KOR", "date"],
+            "y": df_covid19_100.loc[df_covid19_100["iso_code"] == "KOR", "new_cases"],
+            "marker": {"color": "red"}
+        },
+        {
+            "type": "scatter",
+            "mode": "lines",
+            "x": df_covid19_100.loc[df_covid19_100["iso_code"] == "KOR", "date"],
+            "y": df_covid19_100.loc[df_covid19_100["iso_code"] == "KOR", "new_cases"],
+            "line": {"color": "blue", "dash": "dash"}
+        }
+    ],
+    layout=layout,
+    frames=frames
+)
+
+fig.show()
+
+
+
+
+
+import plotly.express as px
+from palmerpenguins import load_penguins
+
+penguins = load_penguins()
+penguins.head()
+
+
+penguins.columns
+
+
+fig = px.scatter(
+    penguins,
+    x = "bill_length_mm",
+    y = "bill_depth_mm",
+    color = 'species'
+    )
+    
+fig.update_layout(
+    title = dict(text="팔머펭귄 종별 부리 길이 vs. 깊이"),
+    paper_bgcolor = 'black',  # plot_bgcolor랑 같이 돌려야지 바뀜
+    plot_bgcolor = 'black',
+    legend = dict(font = dict(color = 'white'))
+).show()
+    
+
+
+
+
+# 데이터 패키지 설치
+# !pip install palmerpenguins
+import pandas as pd
+import numpy as np
+import plotly.express as px
+from palmerpenguins import load_penguins
+
+penguins = load_penguins()
+penguins.head()
+
+# x: bill_length_mm
+# y: bill_depth_mm  
+fig = px.scatter(
+    penguins,
+    x="bill_length_mm",
+    y="bill_depth_mm",
+    color="species"
+)
+# 레이아웃 업데이트
+fig.update_layout(
+    title=dict(text="팔머펭귄 종별 부리 길이 vs. 깊이", font=dict(color="white")),
+    paper_bgcolor="black",
+    plot_bgcolor="black",
+    font=dict(color="white"),
+    xaxis=dict(
+        title=dict(text="부리 길이 (mm)", font=dict(color="white")), 
+        tickfont=dict(color="white"),
+        gridcolor='rgba(255, 255, 255, 0.2)'  # 그리드 색깔 조정
+    ),
+    yaxis=dict(
+        title=dict(text="부리 깊이 (mm)", font=dict(color="white")), 
+        tickfont=dict(color="white"),
+        gridcolor='rgba(255, 255, 255, 0.2)'  # 그리드 색깔 조정
+    ),
+    legend=dict(font=dict(color="white")),
+)
+
+fig.show()
+
+
+
+
+
+fig = px.scatter(
+    penguins,
+    x="bill_length_mm",
+    y="bill_depth_mm",
+    color="species",
+    title="팔머펭귄 종별 부리 길이 vs. 깊이"
+)
+
+# Update layout with enhancements
+fig.update_layout(
+    title=dict(
+        text="팔머펭귄 종별 부리 길이 vs. 깊이",
+        font=dict(color="white", size=24)  # Increase title font size
+    ),
+    paper_bgcolor="black",
+    plot_bgcolor="black",
+    font=dict(color="white"),
+    xaxis=dict(
+        title=dict(text="부리 길이 (mm)", font=dict(color="white")), 
+        tickfont=dict(color="white"),
+        gridcolor='rgba(255, 255, 255, 0.2)'
+    ),
+    yaxis=dict(
+        title=dict(text="부리 깊이 (mm)", font=dict(color="white")), 
+        tickfont=dict(color="white"),
+        gridcolor='rgba(255, 255, 255, 0.2)'
+    ),
+    legend=dict(
+        title=dict(text="펭귄 종", font=dict(color="black")),  # Update legend title
+        font=dict(color="black")
+    ),
+    margin=dict(l=40, r=40, t=60, b=40)  # Adjust margins if needed
+)
+
+# Update marker size
+fig.update_traces(marker=dict(size=10))  # Increase marker size
+
+# Show plot
+fig.show()
+
+
+
+from sklearn.linear_model import LinearRegression
+
+model = LinearRegression()
+
+penguins = penguins.dropna()
+x = penguins[['bill_length_mm']]
+y = penguins['bill_depth_mm']
+
+model.fit(x,y)
+linear_fit = model.predict(x)
+model.coef_
+model.intercept_
+
+fig.add_trace(
+    go.Scatter(
+        mode = 'lines',
+        x=x, y=linear_fit,
+        name = '선형회귀직선',
+        line=dict(dash="dot")
+    )
+).show()
+
+fig.add_trace(
+    go.Scatter(
+        mode = 'lines',
+        x=penguins['bill_length_mm'], y=linear_fit,
+        name = '선형회귀직선',
+        line=dict(dash="dot", color = 'white')  # 선 색 지정 가능
+    )
+).show()
+
+
+
+
+fig = px.scatter(
+    penguins,
+    x="bill_length_mm",
+    y="bill_depth_mm",
+    color="species",
+    trendline = 'ols'
+).show()
+
+
+
+
+
+# 범주형 변수로 회귀분석 진행하기
+# 범주형 변수인 'species'를 더미 변수로 변환
+penguins_dummies = pd.get_dummies(penguins, 
+                                  columns=['species'],
+                                  drop_first=False)
+penguins_dummies.columns  # species 범주갯수만큼 칼럼이 늘어남.
+penguins_dummies.iloc[:,-3:]
+
+
+penguins_dummies2 = pd.get_dummies(penguins, 
+                                  columns=['species'],
+                                  drop_first=True)   # 첫번째 범주(더미변수)를 없애도 나머지 더미변수로 인해 뭘 의미하는지 알 수 있다. 
+penguins_dummies2.columns
+penguins_dummies2.iloc[:,-3:]
+
+
+
+# x와 y 설정
+x = penguins_dummies[["bill_length_mm", "species_Chinstrap", "species_Gentoo"]]  # 더미변수 2개만 사용
+y = penguins_dummies["bill_depth_mm"]
+
+# 모델 학습
+model = LinearRegression()
+model.fit(x, y)
+
+model.coef_   # 10.565261622823762 + 0.20044313*bill_length_mm + (-1.93307791)*species_Chinstrap + (-5.10331533)*species_Gentoo
+model.intercept_   
+
+penguins.iloc[[0, 200],:]
+
+# 첫 번째 관측치에 대해서 예측값은
+# pred_y0 = 10.565261622823762 + 0.20044313 * 39.1 -1.93307791 * 0 -5.10331533 * 0 
+# pred_y200 = 10.565261622823762 + 0.20044313 * 45.0 -1.93307791 * 0 -5.10331533 * 1 
+
+
+regline_y_pred = model.predict(x)
+
+import matplotlib.pyplot as plt
+
+plt.clf()
+#plt.plot(penguins['bill_length_mm'], regline_y_pred)
+plt.scatter(penguins['bill_length_mm'], regline_y_pred)
+plt.show()
+
+
+
+
