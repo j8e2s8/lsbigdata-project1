@@ -47,11 +47,6 @@ train_loc_df[['Longitude','Latitude']]
 
 
 
-
-
-
-
-
 price_mean = df['SalePrice'].mean()
 
 
