@@ -1158,7 +1158,9 @@ fig = px.scatter(
 )
 # 레이아웃 업데이트
 fig.update_layout(
-    title=dict(text="팔머펭귄 종별 부리 길이 vs. 깊이", font=dict(color="white")),
+    title=dict(text="팔머펭귄 종별 부리 길이 vs. 깊이", 
+               font=dict(color="white")),
+               
     paper_bgcolor="black",
     plot_bgcolor="black",
     font=dict(color="white"),

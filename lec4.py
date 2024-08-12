@@ -1122,5 +1122,9 @@ map_sig.save("map_seoul.html")
 
 
 
+# 08/12 수업
+import os
+cwd = os.getcwd()  # 현재 working directory가 어딘지
+os.chdir(cwd)  # directory를 working directory로 변경
 
 
