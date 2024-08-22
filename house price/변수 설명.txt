@@ -78,7 +78,7 @@ LandSlope: 집 토지 경사
        Mod	보통 경사
        Sev	심한 경사
 	
-Neighborhood: Physical locations within Ames city limits 집 위치
+Neighborhood: Physical locations within Ames city limits 집 동네 위치
 
        Blmngtn	Bloomington Heights
        Blueste	Bluestem
@@ -106,17 +106,17 @@ Neighborhood: Physical locations within Ames city limits 집 위치
        Timber	Timberland
        Veenker	Veenker
 			
-Condition1: Proximity to various conditions 다양한 조건에 근접
+Condition1: 다양한 조건에 근접한지
 	
        Artery	간선도로(도시의 주요지점 연결 도로 - 고속도로, 대로 등)에 인접
        Feedr	2차 도로(고속도로에 들어가기 전 도로 - 보조 도로)에 인접
        Norm	보통
        RRNn	North-South Railroad에서 200' 내에 있다.
        RRAn	North-South Railroad에 인접 
-       PosN	Near positive off-site feature--park, greenbelt, etc. 중심지에서
-       PosA	              Adjacent to postive off-site feature
-       RRNe	Within 200' of East-West Railroad
-       RRAe	Adjacent to East-West Railroad
+       PosN	공원, 그린벨트, 등등 off-site인 곳
+       PosA	              공원, 그린벨트, 등등 off-site에 인접
+       RRNe	East-West Railroad에서 200' 내에 있다.
+       RRAe	East-West Railroad에 인접
 	
 Condition2: Proximity to various conditions (if more than one is present)
 		

@@ -688,16 +688,17 @@ submission.to_csv('./house price/sample_submission_line10_240802.csv', index=Fal
 
 
 # 변수 여러개
-x = np.array(df[['GrLivArea','GarageArea']]).reshape(-1,2)
-x = df[['GrLivArea','GarageArea']]
-y = df['SalePrice']
+x = np.array(train_df[['GrLivArea','GarageArea']]).reshape(-1,2)
+x = train_df[['GrLivArea','GarageArea']]
+y = train_df['SalePrice']
 model = LinearRegression()
 model.fit(x,y)
 y_train_pred = model.predict(x)
 
 model.coef_
 model.intercept_
-
+for i in range(len(model.coef_)):
+    print("베타",i+1,"_hat :", model.coef_[i])
 
 
 def f(x,y):
@@ -1316,5 +1317,13 @@ plt.scatter(penguins['bill_length_mm'], regline_y_pred)
 plt.show()
 
 
+import numpy as np
+import pandas as pd
+np.arange(10)
 
+# 08/13 지도
+import plotly.graph_objects as go
+
+import plotly
+plotly.__version__
 

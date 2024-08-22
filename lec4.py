@@ -661,6 +661,9 @@ plt.show()
 
 # x ~ N(μ, σ^2) , x_bar ~ N(μ, s^2/n) , (x_bar - μ)/(s/sqrt(n)) ~ t(표본갯수 n-1)
 from scipy.stats import t, norm
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
 
 x = norm.rvs(loc=5, scale=3, size=1000*5)
 x = x.reshape(-1,5)
@@ -677,6 +680,29 @@ plt.plot(z2, norm.pdf(z2, loc=0, scale=1), color='red')
 plt.xlim([-7 , 7])
 plt.ylim([0 , 0.5])
 plt.show()
+
+
+
+x = norm.rvs(loc=5, scale=3, size=1000*1000)
+x = x.reshape(-1,1000)
+x_bar = x.mean(axis=1)
+sample_std = x.std(axis=1)
+z = (x_bar - 5)/(sample_std/np.sqrt(1000))
+z_min, z_max = (z.min(), z.max())
+z2 = np.linspace(z_min, z_max, 500)
+
+plt.clf()
+sns.histplot(z, stat='density')
+
+plt.plot(z2, norm.pdf(z2, loc=0, scale=1), color='red')
+plt.plot(z2, t.pdf(z2, df=1000-1), color='yellow')
+plt.xlim([-7 , 7])
+plt.ylim([0 , 0.5])
+plt.show()
+
+
+
+
 
 
 
@@ -1126,5 +1152,289 @@ map_sig.save("map_seoul.html")
 import os
 cwd = os.getcwd()  # 현재 working directory가 어딘지
 os.chdir(cwd)  # directory를 working directory로 변경
+
+
+import plotly as px
+
+
+
+# 08/21 
+from matplotlib import pyplot as plt
+from palmerpenguins import load_penguins
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+import numpy as np
+import patsy
+
+df = load_penguins()
+
+model = LinearRegression()
+penguins = df.dropna()
+
+penguins_dummies = pd.get_dummies(
+                        penguins, 
+                        columns=['species'],
+                        drop_first=True)
+
+penguins_dummies.columns
+x = penuins_dumies['bill_length_mm','species_Chinstrap', 'species_Gentoo']
+y = penuins_dumies['bill_depth_mm']
+
+x["bill_Chinstrap"] = x["bill_length_mm"] * x["species_Chinstrap"]
+x["bill_Gentoo"] = x["bill_length_mm"] * x["species_Gentoo"]
+
+model.fit(x, y)  # 상호작용 고려
+
+model.coef_
+model.intercept_
+
+
+# patsy를 사용하여 수식으로 상호작용 항 생성
+# 0 + 는 절편을 제거함
+formula = 'bill_depth_mm ~ 0 + bill_length_mm + species'
+y, x = patsy.dmatrices(formula, penguins, return_type='dataframe')
+model.fit(x,y)
+x   # intercept가 1이거나 0이 나옴. 즉, 베타0를 쓰는 애가 있고 안 쓰는 애가 있음.
+model.coef_
+model.intercept_
+
+
+formula = 'bill_depth_mm ~ bill_length_mm + species'
+y, x = patsy.dmatrices(formula, penguins, return_type='dataframe')
+model.fit(x,y)
+model.coef_
+model.intercept_
+x   # intercept가 다 1로 나옴. 즉, 베타0*1를 쓴다는 의미임.
+
+                                                           # 변수1 * 변수2 로 작성하면, 다음과 같은 컬럼으로 분석해줌.
+formula = 'bill_depth_mm ~ 0 + bill_length_mm * species'   # bill_length_mm  I(species='Adelie')  I(species='Chinstrap')  I(species='Gentoo')  bill_length_mm*I(species='Chinstrap')   bill_length_mm*I(species='Gentoo')
+y, x = patsy.dmatrices(formula, penguins, return_type='dataframe')
+model.fit(x,y)
+pd.set_option('display.max_columns', None)
+x
+
+
+formula = 'bill_depth_mm ~ 1 + bill_length_mm * species'   # bill_length_mm  I(species='Adelie')  I(species='Chinstrap')  I(species='Gentoo')  bill_length_mm*I(species='Chinstrap')   bill_length_mm*I(species='Gentoo')
+y, x = patsy.dmatrices(formula, penguins, return_type='dataframe')
+model.fit(x,y)
+x
+
+formula = 'bill_depth_mm ~ 0 + bill_length_mm + body_mass_g + flipper_length_mm + species'   
+model.fit(x,y)
+x
+
+
+formula = 'bill_depth_mm ~ 0 + bill_length_mm * body_mass_g *  flipper_length_mm * species'   
+model.fit(x,y)
+x
+
+
+x = x.iloc[:1:]  # species(Adelie) 더미변수는 없어야 되는데 있기 때문에 없애줌
+model.fit(x, y)
+model.coef_
+model.intercept_
+
+
+# 08/22 수업
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.linspace(-8,8, 20)
+a, b, c = -4, -5, 2
+y = a * x**2 + b * x + c
+
+plt.clf()
+plt.plot(x, y)
+plt.show()
+
+
+x = np.linspace(-8,8, 20)
+a, b, c, d = 2, 3, 5, -1
+a, b, c, d = -2, -3, 5, -1
+y = a * x**3 + b * x**2 + c * x + d
+
+plt.clf()
+plt.plot(x, y)
+plt.show()
+
+
+x = np.linspace(-8,8, 20)
+a, b, c, d, e = 3, 3, 1, -1, 5
+y = a * x**4 + b * x**3 + c * x**2 + d * x + e
+
+plt.clf()
+plt.plot(x, y)
+plt.show()
+
+
+
+from scipy.stats import norm, uniform
+import seaborn as sns
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 검정색 모회귀곡선
+k = np.linspace(-4,4,200)
+k_y = np.sin(k)
+
+# 파란 점들
+epsilon_i = norm.rvs(loc=0, scale=3, size=20)
+x = uniform.rvs(loc=-4, scale=8, size=20)
+y = np.sin(x) + epsilon_i
+
+
+plt.clf()
+plt.plot(k, k_y, 'black')   # 모회귀곡선
+plt.scatter(x,y)
+plt.show()
+
+
+
+# train test 데이터 만들기
+np.random.seed(42)
+x = uniform.rvs(size=30, loc=-4, scale=8)
+epsilon_i = norm.rvs(size=30, loc=0, scale=0.3)
+y = np.sin(x) + epsilon_i
+
+import pandas as pd
+df = pd.DataFrame({ 
+    "x": x , "y": y})
+
+train_df = df.loc[:19]
+train_df
+
+test_df = df.loc[20:]
+test_df
+
+
+plt.scatter(train_df['x'], train_df['y'] , color='blue')
+
+
+from sklearn.linear_model import LinearRegression
+model = LinearRegression()
+
+train_x= train_df[['x']]
+train_y= train_df['y']
+model.fit(train_x, train_y)
+
+model.coef_
+model.intercept_
+
+
+reg_line = model.predict(train_x)
+
+plt.clf()
+plt.plot(train_x, reg_line, color = 'red')
+plt.scatter(train_x, train_y, color='blue')
+plt.show()
+
+
+train_df['x^2'] = train_df['x']**2
+train_x2 = train_df[['x', 'x^2']]
+train_y2 = train_df['y']
+
+model.fit(train_x2, train_y2)
+
+model.coef_
+model.intercept_
+
+k= np.linspace(-4,4,200)
+train_k = pd.DataFrame({'x': k , 'x^2':k**2})
+
+reg_curve = model.predict(train_k)
+
+plt.plot(train_k['x'], reg_curve, color='red')
+plt.scatter(train_x, train_y, color='blue')
+
+
+
+train_df['x^3'] = train_df['x']**3
+
+train_x3 = train_df[['x', 'x^2', 'x^3']]
+train_y3 = train_df['y']
+
+model.fit(train_x3, train_y3)
+
+model.coef_
+model.intercept_
+
+train_k['x^3'] = train_k['x']**3
+
+reg_curve2 = model.predict(train_k)
+
+plt.plot(train_k['x'], reg_curve2, color='red')
+plt.scatter(train_x, train_y, color='blue')
+
+
+
+train_df['x^4'] = train_df['x']**4
+train_x4 = train_df[['x', 'x^2', 'x^3', 'x^4']]
+train_y4 = train_df['y']
+
+model.fit(train_x4, train_y4)
+
+model.coef_
+model.intercept_
+
+train_k['x^4'] = train_k['x']**4
+reg_curve4 = model.predict(train_k)
+
+plt.plot(train_k['x'], reg_curve4, color='red')
+plt.scatter(train_x, train_y, color='blue')
+
+
+
+
+# 9차 곡선
+def reg_curve(n):
+    import numpy as np
+    from scipy.stats import norm, uniform
+    import matplotlib.pyplot as plt
+    np.random.seed(42)
+    x = uniform.rvs(loc=-4, scale=8,size=30)
+    epsilon_i = norm.rvs(loc=0, scale=0.3, size=30)
+    y = np.sin(x) + epsilon_i  # 관측된 값들
+    df = pd.DataFrame({
+        "x" : x , "y" : y
+    })
+    for i in range(2, n+1):
+        df[f'x^{i}'] = df['x']**i
+    train_df = df.iloc[:20,:]
+    test_df = df.iloc[21:,:]
+
+    # train_x = train_df[train_df.columns.difference(['y'])] # columns 순서가 이상해져서 model.fit할 때 에러남
+    train_x = train_df.drop(columns=['y'])
+    train_y= train_df['y']
+    
+    model = LinearRegression()
+    model.fit(train_x, train_y)
+    
+    model.coef_
+    model.intercept_
+    
+    y_pred = model.predict(train_x)
+
+    k= np.linspace(-4,4,200)
+    k_df = pd.DataFrame({ 'x':k })
+    for i in range(n+1):
+        if i >= 2:
+            k_df[f'x^{i}'] = k_df['x']**i
+    reg_plot = model.predict(k_df)
+
+    plt.plot(k_df['x'], reg_plot, color='red')
+    plt.plot(x,y, color='black')
+    plt.scatter(train_x['x'], train_y, color='blue')
+
+    # test_x = test_df[test_df.columns.difference(['y'])]  # columns 순서가 이상해져서 model.fit할 때 에러남
+    test_x = test_df.drop(columns=['y'])
+    test_y = test_df['y']
+    test_y_pred = model.predict(test_x)
+
+    return print("train set MSE :",((y_pred - train_df['y'])**2).mean(), "\n train set SSE :", sum((y_pred - train_df['y'])**2), "\n test set MSE :", ((test_y_pred - test_y)**2).mean() , "\n test set SSE :" ,sum((test_y_pred - test_y)**2))
+
+
+
+reg_curve(1)  # 차수가 커질 수록 test set에서 성능이 안 좋아짐
+
 
 
