@@ -1391,19 +1391,22 @@ def reg_curve(n):
     from scipy.stats import norm, uniform
     import matplotlib.pyplot as plt
     np.random.seed(42)
-    x = uniform.rvs(loc=-4, scale=8,size=30)
-    epsilon_i = norm.rvs(loc=0, scale=0.3, size=30)
+    x = uniform.rvs(loc=-4, scale=8,size=200)
+    epsilon_i = norm.rvs(loc=0, scale=0.3, size=200)
     y = np.sin(x) + epsilon_i  # 관측된 값들
-    df = pd.DataFrame({
-        "x" : x , "y" : y
+    y2 = np.sin(x)
+    whole_df = pd.DataFrame({
+        "x" : x , "y" : y , "y2" : y2
     })
+    index = np.random.randint(0,200, size=30)
+    df = whole_df.loc[index,].sort_values('x')
     for i in range(2, n+1):
         df[f'x^{i}'] = df['x']**i
     train_df = df.iloc[:20,:]
     test_df = df.iloc[21:,:]
 
-    # train_x = train_df[train_df.columns.difference(['y'])] # columns 순서가 이상해져서 model.fit할 때 에러남
-    train_x = train_df.drop(columns=['y'])
+    # train_x = train_df[train_df.columns.difference(['y','y2'])] # columns 순서가 이상해져서 model.fit할 때 에러남
+    train_x = train_df.drop(columns=['y','y2'])
     train_y= train_df['y']
     
     model = LinearRegression()
@@ -1414,27 +1417,32 @@ def reg_curve(n):
     
     y_pred = model.predict(train_x)
 
-    k= np.linspace(-4,4,200)
-    k_df = pd.DataFrame({ 'x':k })
+    #k= np.linspace(-4,4,200)
+    #k_df = pd.DataFrame({ 'x':k })
     for i in range(n+1):
         if i >= 2:
-            k_df[f'x^{i}'] = k_df['x']**i
-    reg_plot = model.predict(k_df)
+            whole_df[f'x^{i}'] = whole_df['x']**i
+    whole_df = whole_df.sort_values('x')
+    whole_x = whole_df.drop(columns=(['y','y2']))
+    reg_plot = model.predict(whole_x)
 
-    plt.plot(k_df['x'], reg_plot, color='red')
-    plt.plot(x,y, color='black')
-    plt.scatter(train_x['x'], train_y, color='blue')
+    plt.plot(whole_x['x'], reg_plot, color='red')  # 추정된 회귀곡선
+    plt.plot(whole_df['x'] , whole_df['y2'] ,color='black')  # 모회귀곡선
+    plt.scatter(train_x['x'], train_y, color='blue')  # 관측된 관측치
 
     # test_x = test_df[test_df.columns.difference(['y'])]  # columns 순서가 이상해져서 model.fit할 때 에러남
-    test_x = test_df.drop(columns=['y'])
+    test_x = test_df.drop(columns=['y','y2'])
     test_y = test_df['y']
     test_y_pred = model.predict(test_x)
 
-    return print("train set MSE :",((y_pred - train_df['y'])**2).mean(), "\n train set SSE :", sum((y_pred - train_df['y'])**2), "\n test set MSE :", ((test_y_pred - test_y)**2).mean() , "\n test set SSE :" ,sum((test_y_pred - test_y)**2))
+    return print("최대 차수 n :" , n,"\n train set MSE :",((y_pred - train_df['y'])**2).mean(), "\n train set SSE :", sum((y_pred - train_df['y'])**2), "\n test set MSE :", ((test_y_pred - test_y)**2).mean() , "\n test set SSE :" ,sum((test_y_pred - test_y)**2))
 
 
 
-reg_curve(1)  # 차수가 커질 수록 test set에서 성능이 안 좋아짐
+reg_curve(50)  # 차수가 커질 수록 test set에서 성능이 안 좋아짐
+
+# 위에꺼 아님. 뭔가 이상해, 원래 차수가 커질수록 test mse, sse가 10만자리까지 커졌음.
+
 
 
 
