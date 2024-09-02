@@ -1386,27 +1386,29 @@ plt.scatter(train_x, train_y, color='blue')
 
 
 # 9차 곡선
-def reg_curve(n):
+def reg_curve2(n):
     import numpy as np
+    import pandas as pd
+    from sklearn.linear_model import LinearRegression
     from scipy.stats import norm, uniform
     import matplotlib.pyplot as plt
     np.random.seed(42)
     x = uniform.rvs(loc=-4, scale=8,size=200)
     epsilon_i = norm.rvs(loc=0, scale=0.3, size=200)
-    y = np.sin(x) + epsilon_i  # 관측된 값들
-    y2 = np.sin(x)
+    y = np.sin(x) + epsilon_i  # 전수 조사의 관측된 값들
+    black_y = np.sin(x)
     whole_df = pd.DataFrame({
-        "x" : x , "y" : y , "y2" : y2
+        "x" : x , "y" : y , "black_y" : black_y
     })
     index = np.random.randint(0,200, size=30)
-    df = whole_df.loc[index,].sort_values('x')
+    df = whole_df.loc[index,].sort_values('x')   # MSE 구하기 위해 예측값을 구할 데이터셋
     for i in range(2, n+1):
         df[f'x^{i}'] = df['x']**i
     train_df = df.iloc[:20,:]
     test_df = df.iloc[21:,:]
 
     # train_x = train_df[train_df.columns.difference(['y','y2'])] # columns 순서가 이상해져서 model.fit할 때 에러남
-    train_x = train_df.drop(columns=['y','y2'])
+    train_x = train_df.drop(columns=['y','black_y'])
     train_y= train_df['y']
     
     model = LinearRegression()
@@ -1419,19 +1421,18 @@ def reg_curve(n):
 
     #k= np.linspace(-4,4,200)
     #k_df = pd.DataFrame({ 'x':k })
-    for i in range(n+1):
-        if i >= 2:
-            whole_df[f'x^{i}'] = whole_df['x']**i
+    for i in range(2, n+1):   # 부드러운 곡선 그림을 그리기 위해 예측값을 구할 데이터셋
+        whole_df[f'x^{i}'] = whole_df['x']**i
     whole_df = whole_df.sort_values('x')
-    whole_x = whole_df.drop(columns=(['y','y2']))
+    whole_x = whole_df.drop(columns=(['y','black_y']))
     reg_plot = model.predict(whole_x)
 
     plt.plot(whole_x['x'], reg_plot, color='red')  # 추정된 회귀곡선
-    plt.plot(whole_df['x'] , whole_df['y2'] ,color='black')  # 모회귀곡선
+    plt.plot(whole_df['x'] , whole_df['black_y'] ,color='black')  # 모회귀곡선
     plt.scatter(train_x['x'], train_y, color='blue')  # 관측된 관측치
 
     # test_x = test_df[test_df.columns.difference(['y'])]  # columns 순서가 이상해져서 model.fit할 때 에러남
-    test_x = test_df.drop(columns=['y','y2'])
+    test_x = test_df.drop(columns=['y','black_y'])
     test_y = test_df['y']
     test_y_pred = model.predict(test_x)
 
@@ -1439,10 +1440,1944 @@ def reg_curve(n):
 
 
 
-reg_curve(50)  # 차수가 커질 수록 test set에서 성능이 안 좋아짐
+reg_curve2(2)  # 차수가 커질 수록 test set에서 성능이 안 좋아짐
+
 
 # 위에꺼 아님. 뭔가 이상해, 원래 차수가 커질수록 test mse, sse가 10만자리까지 커졌음.
+# 밑에꺼가 맞는 것 같은데 위에꺼 잘 수정하기
 
+
+
+def reg_curve(n):
+    import numpy as np
+    import pandas as pd
+    from sklearn.linear_model import LinearRegression
+    from scipy.stats import norm, uniform
+    import matplotlib.pyplot as plt
+    np.random.seed(42)
+    x = uniform.rvs(loc=-4, scale=8,size=30)
+    epsilon_i = norm.rvs(loc=0, scale=0.3, size=30)
+    y = np.sin(x) + epsilon_i  # 관측된 값들
+    df = pd.DataFrame({
+        "x" : x , "y" : y
+    })
+    for i in range(2, n+1):
+        df[f'x^{i}'] = df['x']**i
+    train_df = df.iloc[:20,:]
+    test_df = df.iloc[21:,:]
+
+    # train_x = train_df[train_df.columns.difference(['y'])] # columns 순서가 이상해져서 model.fit할 때 에러남
+    train_x = train_df.drop(columns=['y'])
+    train_y= train_df['y']
+    
+    model = LinearRegression()
+    model.fit(train_x, train_y)
+    
+    model.coef_
+    model.intercept_
+    
+    y_pred = model.predict(train_x)
+
+    k= np.linspace(-4,4,200)
+    k_df = pd.DataFrame({ 'x':k })
+    for i in range(2, n+1):
+        k_df[f'x^{i}'] = k_df['x']**i
+    reg_plot = model.predict(k_df)
+
+    plt.plot(k_df['x'], reg_plot, color='red')
+    plt.scatter(train_x['x'], train_y, color='blue')
+
+    # test_x = test_df[test_df.columns.difference(['y'])]  # columns 순서가 이상해져서 model.fit할 때 에러남
+    test_x = test_df.drop(columns=['y'])
+    test_y = test_df['y']
+    test_y_pred = model.predict(test_x)
+
+    return print("최대 차수 n :" , n,"\n train set MSE :",((y_pred - train_df['y'])**2).mean(), "\n train set SSE :", sum((y_pred - train_df['y'])**2), "\n test set MSE :", ((test_y_pred - test_y)**2).mean() , "\n test set SSE :" ,sum((test_y_pred - test_y)**2))
+
+
+
+reg_curve(10)  # 차수가 커질 수록 test set에서 성능이 안 좋아짐
+reg_curve2(10)
+
+# train set MSE : 0.4896887899730774 
+# train set SSE : 9.793775799461548 
+# test set MSE : 0.6154594571937836 
+# test set SSE : 5.539135114744052
+
+
+
+
+# 08/26 수업
+# 
+import numpy as np
+
+a = np.arange(1,4)
+a
+b = np.array([3,6,9]).reshape(-1,1)
+b
+
+a.dot(b)
+
+
+# 행렬 * 벡터 (곱셈)
+a = np.array([1,2,3,4]).reshape((2,2), order='F')
+a
+
+b = np.array([5,6]).reshape(2,1)
+b
+
+a.dot(b)
+a @ b
+
+
+# 행렬 * 행렬
+a = np.array([1,2,3,4]).reshape((2,2), order='F')
+a
+
+b = np.array([5,6,7,8]).reshape((2,2), order= 'F')
+b
+
+a @ b
+
+
+# Q1
+a = np.array([1,2,1,0,2,3]).reshape((2,3))
+a
+b= np.array([1, 0, -1, 1, 2, 3]).reshape(3,2)
+b
+
+a @ b
+
+
+
+# Q2
+np.eye(3)
+a = np.array([3,5,7,2,4,9,3,1,0]).reshape(3,3)
+
+a @ np.eye(3)
+np.eye(3) @ a  # 둘이 결과가 같음
+
+
+# trainspose
+a
+a.transpose()
+
+b=a[:,0:2]
+b.transpose()
+
+c = np.array([1,2,3])
+c.transpose()
+
+
+# 회귀분석 데이터 행렬
+x = np.array([13,15,12,14,10,11,5,6]).reshape(4,2)
+x
+vec1 = np.repeat(1,4).reshape(4,1)
+matX = np.hstack((vec1, x))
+matX
+
+beta_vec = np.array([2,0,1]).reshape(3,1)
+beta_vec
+matX @ beta_vec
+
+y = np.array([20,19,20,12]).reshape(4,1)
+(y - matX @ beta_vec).transpose()  @  (y- matX @ beta_vec)
+
+
+# 역행렬 (inverse matrix)
+a = np.array([1,5,3,4]).reshape(2,2)
+b = np.array([4,-5,-3,1]).reshape(2,2)
+b = (-1/11)*b
+a_inv = np.linalg.inv(a)
+a_inv
+
+a @ b
+
+a = np.array([-4, -6, 2, 5, -1, 3, -2, 4, -3]).reshape(3,3)
+a_inv = np.linalg.inv(a)
+a_inv
+
+
+## 역행렬 존재하지 않는 경우 (선형 종속)
+b = np.array([1,2,3,2,4,5,3,6,7]).reshape((3,3), order='F')
+b_inv = np.linalg.inv(b)
+
+np.linalg.det(b)
+
+
+
+
+
+# 베타 추정하기
+data = np.random.randint(-50,50, 120)
+x1 = data[:30]
+x2 = data[30:60]
+x3 = data[60:90]
+y = data[90:]
+
+df = pd.DataFrame({
+    'x1' : x1,
+    'x2' : x2,
+    'x3' : x3,
+    'y' : y
+})
+
+train_x = df.drop(columns=('y'))
+train_y = df['y']
+
+
+# 베타 추정하기 - 1. (XTX)^(-1)XTy
+b0 = np.repeat(1,30).reshape(-1,1)
+X = np.hstack((b0,train_x))
+XTX = X.transpose() @ X
+XTX_inv = np.linalg.inv(XTX)
+XTy = X.transpose() @ train_y
+XTX_inv @ XTy   #  4.56185895, -0.02151196,  0.15317829, -0.22849104
+
+
+
+# 베타 추정하기 - 2. sklearn.linear_model의 LinearRegression의 model fit
+from sklearn.linear_model import LinearRegression
+model = LinearRegression()
+model.fit(train_x, train_y)
+
+model.coef_   # -0.02151196,  0.15317829, -0.22849104
+model.intercept_    #  4.561858950771647
+
+
+
+# 베타 추정하기 - 3. 최소제곱법
+from scipy.optimize import minimize
+b0 = np.repeat(1,30).reshape(-1,1)
+X = np.hstack((b0,train_x))
+
+def line_beta(beta):  # 베타들은 리스트로 넣기
+    beta = np.array(beta).reshape(-1,1)
+    y = np.array(train_y).reshape(-1,1)
+    e = (y- X @ beta)
+    return e.transpose() @ e
+
+
+# 초기 추정값
+initial_guess = [0,0,0,0]  # 베타들은 리스트로 넣기  <- 베타0, 베타1, 베타2, 베타3 있어야 함. 차원 맞춰줘야함
+result = minimize(line_beta, initial_guess)
+
+print("최소 잔차제곱합 :", result.fun)
+print("최소 잔차제곱합이 되는 베타값 :" , result.x)   # [ 4.56185882 -0.02151197  0.15317828 -0.22849104]
+
+
+
+
+
+
+# minimize로 라쏘 베타 구하기
+from scipy.optimize import minimize
+
+def line_perform_lasso(beta):
+    beta = np.array(beta).reshape(3,1)
+    a = (y- matX @ beta)
+    return (a.transpose() @ a) + 3*np.abs(beta).sum()
+
+line_perform_lasso([8.55, 5.96, -4.38])
+
+# 초기 추정값
+initial_guess = [0,0,0]
+
+# 최소값 찾기
+result = minimize(line_perform_lasso, initial_guess)
+
+# 결과 출력
+print("최소값:" , result.fun)
+print("최소값을 갖는 베타값: ", result.x)
+
+
+
+
+# minimize로 릿지 베타 구하기
+from scipy.optimize import minimize
+
+def line_perform_ridge(beta):
+    beta = np.array(beta).reshape(3,1)
+    a = (y- matX @ beta)
+    return (a.transpose() @ a) + 3*(beta**2).sum()
+
+line_perform_ridge([8.55, 5.96, -4.38])
+
+# 초기 추정값
+initial_guess = [0,0,0]
+
+# 최소값 찾기
+result = minimize(line_perform_ridge, initial_guess)
+
+# 결과 출력
+print("최소값:" , result.fun)
+print("최소값을 갖는 베타값: ", result.x)
+
+
+
+
+
+import numpy as np
+
+# 회귀분석 데이터행렬
+x=np.array([13, 15,
+           12, 14,
+           10, 11,
+           5, 6]).reshape(4, 2)
+x
+vec1=np.repeat(1, 4).reshape(4, 1)
+matX=np.hstack((vec1, x))
+y=np.array([20, 19, 20, 12]).reshape(4, 1)
+matX
+
+# minimize로 라쏘 베타 구하기
+from scipy.optimize import minimize
+
+
+
+def line_perform_lasso(beta):
+    beta=np.array(beta).reshape(3, 1)
+    a=(y - matX @ beta)
+    return (a.transpose() @ a) + 0*np.abs(beta[1:]).sum()  # 라쏘는 베타를 베타1부터 넣음. 베타0 값이 커도 상관이 없다는 것
+
+line_perform_lasso([8.55,  5.96, -4.38])  # 람다가 0일 때 손실함수가 최소값을 가지는 베타들
+line_perform_lasso([8.14,  0.96, 0])  # 최소일 때임
+
+# 초기 추정값
+initial_guess = [0, 0, 0]
+
+# 최소값 찾기
+result = minimize(line_perform_lasso, initial_guess)
+
+# 결과 출력
+print("최소값:", result.fun)
+print("최소값을 갖는 x 값:", result.x)
+
+# 예측식 : y_hat = 8.55 + 5.96*X1 + -4.38*X2   [람다가 0일 때]
+
+
+
+
+
+
+
+
+def line_perform_lasso(beta):
+    beta=np.array(beta).reshape(3, 1)
+    a=(y - matX @ beta)
+    return (a.transpose() @ a) + 3*np.abs(beta[1:]).sum()  # 라쏘는 베타를 베타1부터 넣음. 베타0 값이 커도 상관이 없다는 것
+                                                    # beta1 부터 넣는 이유 : 람다가 커질수록 베타들 하나씩 추정값이 0 이 됨. 
+                                                    # 근데 beta0부터 넣게 되면 엄청 큰 람다에서는 beta0~ betan모두 0으로 추정되고
+                                                    # 그러면 y_hat이 0으로 추정됨. 그래서 beta0를 제외하고 beta들을 넣고
+                                                    # 아무리 람다가 커도 beta0는 살아있으니까 y_hat은 beta0로 추정됨.
+                                                    # 보통 이럴 때 beta0는 y평균값에 가깝게 추정된다.
+                                                    # 라쏘와 릿지는 서로 장단점이 있어서 뭐가 더 좋다 라고 할 수 없음
+                                                    # 라쏘는 변수 선택 효과가 있는 좋은 점이 있고, 릿지는 ....
+line_perform_lasso([8.55,  5.96, -4.38])
+line_perform_lasso([8.14,  0.96, 0])  # 최소일 때임
+
+# 초기 추정값
+initial_guess = [0, 0, 0]
+
+# 최소값 찾기
+result = minimize(line_perform_lasso, initial_guess)
+
+# 결과 출력
+print("최소값:", result.fun)
+print("최소값을 갖는 x 값:", result.x)
+
+# 예측식 : y_hat = 8.14 + 0.96*X1 + 0*X2   [람다가 3일 때]
+
+
+
+def line_perform_lasso(beta):
+    beta=np.array(beta).reshape(3, 1)
+    a=(y - matX @ beta)
+    return (a.transpose() @ a) + 30*np.abs(beta[1:]).sum()  # 라쏘는 베타를 베타1부터 넣음. 베타0 값이 커도 상관이 없다는 것
+
+line_perform_lasso([8.55,  5.96, -4.38])
+line_perform_lasso([8.14,  0.96, 0])  # 최소일 때임
+
+# 초기 추정값
+initial_guess = [0, 0, 0]
+
+# 최소값 찾기
+result = minimize(line_perform_lasso, initial_guess)
+
+# 결과 출력
+print("최소값:", result.fun)
+print("최소값을 갖는 x 값:", result.x)
+
+# 예측식 : y_hat = 11.5 + 0*X1 + 0.54*X2  [람다가 30일 때]
+
+
+
+
+
+
+def line_perform_lasso(beta):
+    beta=np.array(beta).reshape(3, 1)
+    a=(y - matX @ beta)
+    return (a.transpose() @ a) + 500*np.abs(beta[1:]).sum()  # 라쏘는 베타를 베타1부터 넣음. 베타0 값이 커도 상관이 없다는 것
+
+line_perform_lasso([8.55,  5.96, -4.38])
+line_perform_lasso([8.14,  0.96, 0])  # 최소일 때임
+
+# 초기 추정값
+initial_guess = [0, 0, 0]
+
+# 최소값 찾기
+result = minimize(line_perform_lasso, initial_guess)
+
+# 결과 출력
+print("최소값:", result.fun)
+print("최소값을 갖는 x 값:", result.x)
+
+# 예측식 : y_hat = 11.5 + 0*X1 + 0*X2  [람다가 500일 때] X1, X2가 얼마든간데 11.5 예측값임.
+# 람다만 잘 설정하면, 변수가 엄청 많아도 베타 추정이 0인 변수들이 생기면서 자연스럽게 변수 선택하게 되는 효과가 있음.
+
+
+# 그럼 결국 valid set으로 모델 성능이 좋은 람다를 구하자.
+# 람다 값에 따라 변수가 선택 된다.
+# x 변수가 추가되면, trainX에서는 어떤 X 차수든지 성능이 항상 좋아짐.
+# x 변수가 추가되면, validX에서는 X 차수가 높아질 수록 좋아졌다가 나빠짐 (나빠진다는 것은 오버피팅이 됐기 때문임)
+# 람다 0부터 시작 : 내가 가진 모든 변수를 넣겠다
+# 람다가 증가 할 수록 : 변수가 하나씩 빠지게 됨.
+# 따라서 validX에서 가장 성능이 좋은 람다를 선택!
+# 변수가 선택됨을 의미.
+
+
+# 릿지는 계수 추정이 하나는 0, 하나는 1000000 이런식으로 추정되지 않고 안정적이게 추정됨. 
+
+
+# 회귀 추정 방법 : (XTX)^(-1)XTy
+# 이렇게 회귀 추정하려면 (XTX) 역행렬이 존재해야 함. (XTX) 역행렬이 존재하려면 X가 선형독립이어야 함.
+
+# x의 칼럼에 선형 종속인 애들이 있다 : 다중공선성이 존재한다. -> 즉, (XTX) 역행렬이 없다는 거고 -> 즉, 베타 추정을 못한다는 것임 (추정이 되도 믿을 수 없는 것임)
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+from scipy.stats import uniform
+from sklearn.linear_model import LinearRegression
+
+# 20차 모델 성능을 알아보자능
+np.random.seed(2024)
+x = uniform.rvs(size=30, loc=-4, scale=8)
+y = np.sin(x) + norm.rvs(size=30, loc=0, scale=0.3)
+
+import pandas as pd
+df = pd.DataFrame({
+    "y" : y,
+    "x" : x
+})
+df
+
+train_df = df.loc[:19]
+train_df
+
+for i in range(2, 21):
+    train_df[f"x{i}"] = train_df["x"] ** i
+    
+# 'x' 열을 포함하여 'x2'부터 'x20'까지 선택.
+train_x = train_df[["x"] + [f"x{i}" for i in range(2, 21)]]
+train_y = train_df["y"]
+
+from sklearn.linear_model import Lasso
+model= Lasso(alpha=0.1)  # lambda가 alpha 표현됨
+model.fit(train_x, train_y)
+
+model.coef_   # 베타1부터 추정한 값  <- 파라미터 라고 함.  하이퍼파라미터는 데이터, 모델에서부터 결정하는 게 아니라, validation set 에서 얼마로 할지 나중에 결정하는 것임.
+                                                        # 람다(alpha)가 하이퍼파리미터임.
+
+
+
+
+model= Lasso(alpha=0)  # lambda가 alpha 표현됨
+model.fit(train_x, train_y)
+
+
+
+valid_df = df.loc[20:]
+valid_df
+
+for i in range(2, 21):
+    valid_df[f"x{i}"] = valid_df["x"] ** i
+
+# 'x' 열을 포함하여 'x2'부터 'x20'까지 선택.
+valid_x = valid_df[["x"] + [f"x{i}" for i in range(2, 21)]]
+
+
+# 모델 성능
+y_hat_train = model.predict(train_x)   # train set에서의 성능과
+y_hat_val = model.predict(valid_x)    # valid set에서의 성능을 각각 구해서 비교할 수 있음.
+
+print("train MSE :",sum((train_df["y"] - y_hat_train)**2))
+print("valid MSE",sum((valid_df["y"] - y_hat_val)**2))
+
+
+
+
+
+# 람다 값 결정하기
+
+val_result = np.repeat(0.0, 100)
+tr_result = np.repeat(0.0, 100)
+
+for i in np.arange(1,100):
+    model = Lasso(alpha = i*(0.1))
+    model.fit(train_x, train_y)
+
+    # 모델 성능
+    y_hat_train = model.predict(train_x)
+    y_hat_val = model.predict(valid_x)
+
+    perf_train = sum((train_df['y'] - y_hat_train)**2)
+    perf_val = sum((valid_df['y'] - y_hat_val)**2)
+    tr_result[i] = perf_train
+    val_result[i] = perf_val
+
+
+import seaborn as sns
+import pandas as pd
+df = pd.DataFrame({
+    '1' : np.arange(0,100,0.1),
+    'tr' : tr_result,
+    'val' : val_result
+})
+
+
+
+df = pd.DataFrame({
+    'lambda': np.arange(0, 1, 0.01), 
+    'tr': tr_result,
+    'val': val_result
+})
+
+# seaborn을 사용하여 산점도 그리기
+sns.scatterplot(data=df, x='lambda', y='tr')
+sns.scatterplot(data=df, x='lambda', y='val', color='red')
+plt.xlim(0, 0.4)
+
+val_result[0]
+val_result[1]
+np.min(val_result)
+
+# alpha를 0.03로 선택!
+np.argmin(val_result)
+np.arange(0, 1, 0.01)[np.argmin(val_result)]  # alpha가 0.03으로 나옴
+
+
+
+
+
+
+
+np.random.seed(2024)
+x = uniform.rvs(size=30, loc=-4, scale=8)
+y = np.sin(x) + norm.rvs(size=30, loc=0, scale=0.3)
+
+import pandas as pd
+df = pd.DataFrame({
+    "y" : y,
+    "x" : x
+})
+df
+
+train_df = df.loc[:19]
+train_df
+
+valid_df = df.loc[20:]
+valid_df
+
+valid_x = valid_df['x']
+valid_y = valid_df['y']
+
+for i in range(2, 21):
+    train_df[f"x^{i}"] = train_df["x"] ** i
+    
+# 'x' 열을 포함하여 'x2'부터 'x20'까지 선택.
+train_x = train_df[["x"] + [f"x^{i}" for i in range(2, 21)]]
+train_y = train_df["y"]
+
+
+k = np.arange(-4,4,0.01)
+k_df = pd.DataFrame({
+    'x' : k
+})
+
+for i in range(2,21):
+    k_df[f"x^{i}"] = k_df['x']**i
+
+k_df= k_df.sort_values('x')
+
+
+model = Lasso(alpha = 0.03)
+model.fit(train_x, train_y)
+y_pred = model.predict(train_x)
+
+line_pred = model.predict(k_df)
+
+plt.scatter(valid_x, valid_y, color='blue')
+plt.plot(k_df['x'], line_pred, color='red')
+
+
+
+
+
+for i in range(2, 21):
+    valid_df[f"x^{i}"] = valid_df["x"] ** i
+    
+# 'x' 열을 포함하여 'x2'부터 'x20'까지 선택.
+valid_x = valid_df[["x"] + [f"x^{i}" for i in range(2, 21)]]
+valid_y = valid_df["y"]
+
+
+k = np.arange(-4,4,0.01)
+k_df = pd.DataFrame({
+    'x' : k
+})
+
+for i in range(2,21):
+    k_df[f"x^{i}"] = k_df['x']**i
+
+k_df= k_df.sort_values('x')
+
+
+model = Lasso(alpha = 0.03)
+model.fit(valid_x, valid_y)
+y_pred = model.predict(valid_x)
+
+line_pred = model.predict(k_df)
+
+plt.scatter(valid_x['x'], valid_y, color='blue')
+plt.plot(k_df['x'], line_pred, color='red')
+
+
+
+# -------------------------------------------------
+# k-fold
+import seaborn as sns
+import pandas as pd
+import pandas as pd
+
+np.random.seed(2024)
+x = uniform.rvs(size=30, loc=-4, scale=8)
+y = np.sin(x) + norm.rvs(size=30, loc=0, scale=0.3)
+
+df = pd.DataFrame({
+    "y" : y,
+    "x" : x
+})
+df
+
+index = np.random.choice(np.arange(30),30, replace=False)
+fold1 = index[:6]
+fold2 = index[6:12]
+fold3 = index[12:18]
+fold4 = index[18:24]
+fold5 = index[24:]
+
+for i in range(2, 21):
+    df[f"x^{i}"] = df["x"] ** i
+
+# fold1 = validation
+valid1 = df.loc[fold1]
+train1 = df.drop(fold1)
+
+valid1_x = valid1.drop(columns = ('y'))
+valid1_y = valid1['y']
+train1_x = train1.drop(columns= ('y'))
+train1_y = train1['y']
+
+
+train_result = []
+valid_result = []
+lambda_result = []
+
+for i in np.arange(1000):
+    model = Lasso(alpha = i*(0.01))
+    model.fit(train1_x, train1_y)
+
+    # 모델 성능
+    y_hat_train = model.predict(train1_x)
+    y_hat_val = model.predict(valid1_x)
+
+    perf_train = sum((train1_y - y_hat_train)**2)
+    perf_valid = sum((valid1_y - y_hat_val)**2)
+    train_result.append(perf_train) 
+    valid_result.append(perf_valid)
+    lambda_result.append(i*(0.01))
+
+
+
+perf_df = pd.DataFrame({
+    'lambda_result' : lambda_result,
+    'train_result' : train_result,
+    'valid_result' : valid_result
+})
+
+
+
+
+# alpha를 0.01으로 선택!
+np.argmin(valid_result)  # 최소값의 위치 인덱스 알아봐줌
+perf_df['lambda_result'][np.argmin(valid_result)]  # lambda 값
+
+perf_df['valid_result'].min()
+
+
+alpha001_perf = []
+alpha001_perf.append(perf_df['valid_result'].min())
+
+good_lambda = [0.01]
+
+
+# fold2
+valid2 = df.loc[fold2]
+train2 = df.drop(fold2)
+
+valid2_x = valid2.drop(columns = ('y'))
+valid2_y = valid2['y']
+train2_x = train2.drop(columns= ('y'))
+train2_y = train2['y']
+
+
+train_result = []
+valid_result = []
+lambda_result = []
+
+for i in np.arange(1000):
+    model = Lasso(alpha = i*(0.01))
+    model.fit(train2_x, train2_y)
+
+    # 모델 성능
+    y_hat_train = model.predict(train2_x)
+    y_hat_val = model.predict(valid2_x)
+
+    perf_train = sum((train2_y - y_hat_train)**2)
+    perf_valid = sum((valid2_y - y_hat_val)**2)
+    train_result.append(perf_train) 
+    valid_result.append(perf_valid)
+    lambda_result.append(i*(0.01))
+
+
+
+perf_df2 = pd.DataFrame({
+    'lambda_result' : lambda_result,
+    'train_result' : train_result,
+    'valid_result' : valid_result
+})
+
+
+# alpha를 0.05으로 선택!
+np.argmin(valid_result)  # 최소값의 위치 인덱스 알아봐줌
+
+perf_df2['valid_result'].min()
+perf_df2['lambda_result'][np.argmin(valid_result)]
+
+alpha005_perf = [0]
+alpha005_perf.append(perf_df2['valid_result'].min())
+
+good_lambda.append(0.05)
+
+
+# fold3
+valid3 = df.loc[fold3]
+train3 = df.drop(fold3)
+
+valid3_x = valid3.drop(columns = ('y'))
+valid3_y = valid3['y']
+train3_x = train3.drop(columns= ('y'))
+train3_y = train3['y']
+
+
+train_result = []
+valid_result = []
+lambda_result = []
+
+for i in np.arange(1000):
+    model = Lasso(alpha = i*(0.01))
+    model.fit(train3_x, train3_y)
+
+    # 모델 성능
+    y_hat_train = model.predict(train3_x)
+    y_hat_val = model.predict(valid3_x)
+
+    perf_train = sum((train3_y - y_hat_train)**2)
+    perf_valid = sum((valid3_y - y_hat_val)**2)
+    train_result.append(perf_train) 
+    valid_result.append(perf_valid)
+    lambda_result.append(i*(0.01))
+
+
+
+perf_df3 = pd.DataFrame({
+    'lambda_result' : lambda_result,
+    'train_result' : train_result,
+    'valid_result' : valid_result
+})
+
+
+# alpha를 0.02으로 선택!
+np.argmin(valid_result)  # 최소값의 위치 인덱스 알아봐줌
+
+perf_df3['valid_result'].min()
+perf_df3['lambda_result'][np.argmin(valid_result)]
+
+alpha002_perf =[0,0]
+alpha002_perf.append(perf_df3['valid_result'].min())
+
+good_lambda.append(0.02)
+
+
+
+
+
+# fold4
+valid4 = df.loc[fold4]
+train4 = df.drop(fold4)
+
+valid4_x = valid4.drop(columns = ('y'))
+valid4_y = valid4['y']
+train4_x = train4.drop(columns= ('y'))
+train4_y = train4['y']
+
+
+train_result = []
+valid_result = []
+lambda_result = []
+
+for i in np.arange(1000):
+    model = Lasso(alpha = i*(0.01))
+    model.fit(train4_x, train4_y)
+
+    # 모델 성능
+    y_hat_train = model.predict(train4_x)
+    y_hat_val = model.predict(valid4_x)
+
+    perf_train = sum((train4_y - y_hat_train)**2)
+    perf_valid = sum((valid4_y - y_hat_val)**2)
+    train_result.append(perf_train) 
+    valid_result.append(perf_valid)
+    lambda_result.append(i*(0.01))
+
+
+
+perf_df4 = pd.DataFrame({
+    'lambda_result' : lambda_result,
+    'train_result' : train_result,
+    'valid_result' : valid_result
+})
+
+
+# alpha를 0으로 선택!
+np.argmin(valid_result)  # 최소값의 위치 인덱스 알아봐줌
+
+perf_df4['valid_result'].min()
+perf_df4['lambda_result'][np.argmin(valid_result)]
+
+alpha0_perf =[0,0,0]
+alpha0_perf.append(perf_df4['valid_result'].min())
+
+good_lambda.append(0)
+
+
+
+# fold5
+valid5 = df.loc[fold5]
+train5 = df.drop(fold5)
+
+valid5_x = valid5.drop(columns = ('y'))
+valid5_y = valid5['y']
+train5_x = train5.drop(columns= ('y'))
+train5_y = train5['y']
+
+
+train_result = []
+valid_result = []
+lambda_result = []
+
+for i in np.arange(1000):
+    model = Lasso(alpha = i*(0.01))
+    model.fit(train5_x, train5_y)
+
+    # 모델 성능
+    y_hat_train = model.predict(train5_x)
+    y_hat_val = model.predict(valid5_x)
+
+    perf_train = sum((train5_y - y_hat_train)**2)
+    perf_valid = sum((valid5_y - y_hat_val)**2)
+    train_result.append(perf_train) 
+    valid_result.append(perf_valid)
+    lambda_result.append(i*(0.01))
+
+
+
+perf_df5 = pd.DataFrame({
+    'lambda_result' : lambda_result,
+    'train_result' : train_result,
+    'valid_result' : valid_result
+})
+
+
+# alpha를 0으로 선택!
+np.argmin(valid_result)  # 최소값의 위치 인덱스 알아봐줌
+
+perf_df5['valid_result'].min()
+perf_df5['lambda_result'][np.argmin(valid_result)]
+
+
+alpha0_perf.append(perf_df5['valid_result'].min())
+
+good_lambda.append(0)
+
+
+
+
+good_lambda
+
+
+# fold1의 0.05일 때 성능
+model = Lasso(alpha = 0.05)
+model.fit(train1_x, train1_y)
+
+# 모델 성능
+# y_hat_train = model.predict(train1_x)
+y_hat_val = model.predict(valid1_x)
+
+#perf_train = sum((train1_y - y_hat_train)**2)
+perf_valid = sum((valid1_y - y_hat_val)**2)
+# train_result.append(perf_train) 
+perf_valid
+
+alpha005_perf[0] = perf_valid
+
+
+# fold3의 0.05일 때 성능
+model = Lasso(alpha = 0.05)
+model.fit(train3_x, train3_y)
+
+# 모델 성능
+# y_hat_train = model.predict(train1_x)
+y_hat_val = model.predict(valid3_x)
+
+#perf_train = sum((train1_y - y_hat_train)**2)
+perf_valid = sum((valid3_y - y_hat_val)**2)
+# train_result.append(perf_train) 
+perf_valid
+
+alpha005_perf.append(perf_valid)
+
+
+# fold4 의 0.05 성능
+model = Lasso(alpha = 0.05)
+model.fit(train4_x, train4_y)
+
+# 모델 성능
+# y_hat_train = model.predict(train1_x)
+y_hat_val = model.predict(valid4_x)
+
+#perf_train = sum((train1_y - y_hat_train)**2)
+perf_valid = sum((valid4_y - y_hat_val)**2)
+# train_result.append(perf_train) 
+perf_valid
+alpha005_perf.append(perf_valid)
+
+
+# fold5 의 0.05 성능
+model = Lasso(alpha = 0.05)
+model.fit(train5_x, train5_y)
+
+# 모델 성능
+# y_hat_train = model.predict(train1_x)
+y_hat_val = model.predict(valid5_x)
+
+#perf_train = sum((train1_y - y_hat_train)**2)
+perf_valid = sum((valid5_y - y_hat_val)**2)
+# train_result.append(perf_train) 
+perf_valid
+alpha005_perf.append(perf_valid)
+
+
+good_lambda
+
+# fold2의 0.01 성능
+model = Lasso(alpha = 0.01)
+model.fit(train2_x, train2_y)
+
+# 모델 성능
+# y_hat_train = model.predict(train1_x)
+y_hat_val = model.predict(valid2_x)
+
+#perf_train = sum((train1_y - y_hat_train)**2)
+perf_valid = sum((valid2_y - y_hat_val)**2)
+# train_result.append(perf_train) 
+perf_valid
+alpha001_perf.append(perf_valid)
+
+
+# fold3의 0.01 성능
+model = Lasso(alpha = 0.01)
+model.fit(train3_x, train3_y)
+
+# 모델 성능
+# y_hat_train = model.predict(train1_x)
+y_hat_val = model.predict(valid3_x)
+
+#perf_train = sum((train1_y - y_hat_train)**2)
+perf_valid = sum((valid3_y - y_hat_val)**2)
+# train_result.append(perf_train) 
+perf_valid
+alpha001_perf.append(perf_valid)
+
+
+# fold4의 0.01 성능
+model = Lasso(alpha = 0.01)
+model.fit(train4_x, train4_y)
+
+# 모델 성능
+# y_hat_train = model.predict(train1_x)
+y_hat_val = model.predict(valid4_x)
+
+#perf_train = sum((train1_y - y_hat_train)**2)
+perf_valid = sum((valid4_y - y_hat_val)**2)
+# train_result.append(perf_train) 
+perf_valid
+alpha001_perf.append(perf_valid)
+
+
+
+# fold5의 0.01 성능
+model = Lasso(alpha = 0.01)
+model.fit(train5_x, train5_y)
+
+# 모델 성능
+# y_hat_train = model.predict(train1_x)
+y_hat_val = model.predict(valid5_x)
+
+#perf_train = sum((train1_y - y_hat_train)**2)
+perf_valid = sum((valid5_y - y_hat_val)**2)
+# train_result.append(perf_train) 
+perf_valid
+alpha001_perf.append(perf_valid)
+
+
+
+good_lambda
+
+# fold1의 0.02 성능
+model = Lasso(alpha = 0.02)
+model.fit(train1_x, train1_y)
+
+# 모델 성능
+# y_hat_train = model.predict(train1_x)
+y_hat_val = model.predict(valid1_x)
+
+#perf_train = sum((train1_y - y_hat_train)**2)
+perf_valid = sum((valid1_y - y_hat_val)**2)
+# train_result.append(perf_train) 
+perf_valid
+alpha002_perf[0] = (perf_valid)
+
+
+# fold2의 0.02 성능
+model = Lasso(alpha = 0.02)
+model.fit(train2_x, train2_y)
+
+# 모델 성능
+# y_hat_train = model.predict(train1_x)
+y_hat_val = model.predict(valid2_x)
+
+#perf_train = sum((train1_y - y_hat_train)**2)
+perf_valid = sum((valid2_y - y_hat_val)**2)
+# train_result.append(perf_train) 
+perf_valid
+alpha002_perf[1] = (perf_valid)
+
+
+# fold4의 0.02 성능
+model = Lasso(alpha = 0.02)
+model.fit(train4_x, train4_y)
+
+# 모델 성능
+# y_hat_train = model.predict(train1_x)
+y_hat_val = model.predict(valid4_x)
+
+#perf_train = sum((train1_y - y_hat_train)**2)
+perf_valid = sum((valid4_y - y_hat_val)**2)
+# train_result.append(perf_train) 
+perf_valid
+alpha002_perf.append(perf_valid)
+
+
+# fold5의 0.02 성능
+model = Lasso(alpha = 0.02)
+model.fit(train5_x, train5_y)
+
+# 모델 성능
+# y_hat_train = model.predict(train1_x)
+y_hat_val = model.predict(valid5_x)
+
+#perf_train = sum((train1_y - y_hat_train)**2)
+perf_valid = sum((valid5_y - y_hat_val)**2)
+# train_result.append(perf_train) 
+perf_valid
+alpha002_perf.append(perf_valid)
+
+
+
+# fold1의 0 성능
+model = Lasso(alpha = 0)
+model.fit(train1_x, train1_y)
+
+# 모델 성능
+# y_hat_train = model.predict(train1_x)
+y_hat_val = model.predict(valid1_x)
+
+#perf_train = sum((train1_y - y_hat_train)**2)
+perf_valid = sum((valid1_y - y_hat_val)**2)
+# train_result.append(perf_train) 
+perf_valid
+alpha0_perf[0] = perf_valid
+
+
+
+# fold2의 0 성능
+model = Lasso(alpha = 0)
+model.fit(train2_x, train2_y)
+
+# 모델 성능
+# y_hat_train = model.predict(train1_x)
+y_hat_val = model.predict(valid2_x)
+
+#perf_train = sum((train1_y - y_hat_train)**2)
+perf_valid = sum((valid2_y - y_hat_val)**2)
+# train_result.append(perf_train) 
+perf_valid
+alpha0_perf[1] = perf_valid
+
+
+# fold3의 0 성능
+model = Lasso(alpha = 0)
+model.fit(train3_x, train3_y)
+
+# 모델 성능
+# y_hat_train = model.predict(train1_x)
+y_hat_val = model.predict(valid3_x)
+
+#perf_train = sum((train1_y - y_hat_train)**2)
+perf_valid = sum((valid3_y - y_hat_val)**2)
+# train_result.append(perf_train) 
+perf_valid
+alpha0_perf[2] = perf_valid
+
+
+good_lambda
+
+whole_perf_df = pd.DataFrame({
+    'good_lambda' : good_lambda,
+    'alpha000' : alpha0_perf,
+    'alpha001' : alpha001_perf,
+    'alpha002' : alpha002_perf,
+    'alpha005' : alpha005_perf,
+})
+
+
+print("람다 0 의 평균 성능", whole_perf_df['alpha000'].mean())   # 0의 성능이 더 좋음
+print("람다 0.01 의 평균 성능", whole_perf_df['alpha001'].mean())
+print("람다 0.02 의 평균 성능", whole_perf_df['alpha002'].mean())
+print("람다 0.05 의 평균 성능", whole_perf_df['alpha005'].mean())  
+
+
+
+
+
+
+
+
+
+# -------------------------------------------------
+# k-fold
+import seaborn as sns
+import pandas as pd
+import pandas as pd
+
+np.random.seed(2024)
+x = uniform.rvs(size=30, loc=-4, scale=8)
+y = np.sin(x) + norm.rvs(size=30, loc=0, scale=0.3)
+
+df = pd.DataFrame({
+    "y" : y,
+    "x" : x
+})
+df
+
+for i in range(2, 21):
+    df[f"x^{i}"] = df["x"] ** i
+
+
+index = np.random.choice(30,30, replace=False)
+fold1 = index[:10]
+fold2 = index[10:20]
+fold3 = index[20:30]
+
+df.loc[index[0:10]]
+df.drop(index[0:10])
+
+fold_num = 0
+fold_num = 1
+
+def make_tr_val(fold_num, df, cv_num=3):  # cv_num이 def 정의에 사용되지 않아서 흐릿한 색으로 나옴. 그리고 기본값 3으로 설정되어 있어서, def 사용할 때 cv 입력 안해도 3으로 입력됨.
+    np.random.seed(2024)
+    myindex = np.random.choice(30,30,replace=False)
+
+    val_index = myindex[(10*fold_num) : (10*fold_num+10)]
+
+    valid_set = df.loc[val_index]
+    train_set = df.drop(val_index)
+
+    train_x = train_set.iloc[:, 1:]
+    train_y = train_set.iloc[:,0]
+
+    valid_x = valid_set.iloc[:, 1:]
+    valid_y = valid_set.iloc[:, 0]
+
+    return (train_x, train_y, valid_x, valid_y)
+
+
+
+valid_result_total = np.repeat(0.0, 3000).reshape(3,-1)  # 값을 받을 matrix 만듦
+train_result_total = np.repeat(0.0, 3000).reshape(3,-1)  # 값을 받을 matrix 만듦
+
+for j in np.arange(0,3):
+    train_x, train_y, valid_x, valid_y = make_tr_val(fold_num = j, df=df)
+
+    train_result = []
+    valid_result = []
+    lambda_result = []
+
+    for i in np.arange(1000):
+        model = Lasso(alpha = i*0.01)
+        model.fit(train_x, train_y)
+
+        # 모델 성능
+        y_hat_train = model.predict(train_x)
+        y_hat_val = model.predict(valid_x)
+
+        perf_train = sum((train_y - y_hat_train)**2)
+        perf_valid = sum((valid_y - y_hat_val)**2)
+        train_result.append(perf_train) 
+        valid_result.append(perf_valid)
+        lambda_result.append(i*0.01)
+
+    train_result_total[j,:] = train_result
+    valid_result_total[j,:] = valid_result
+
+
+df = pd.DataFrame({
+    'lambda' : lambda_result,
+    'train' : train_result_total.mean(axis=0),
+    'valid' : valid_result_total.mean(axis=0)
+})
+
+
+sns.scatterplot(data=df, x='lambda', y='train')
+sns.scatterplot(data=df, x='lambda', y='valid', color='red')
+plt.xlim(0, 0.4)   # lambda 범위가 0.4보다 클 듯 함
+
+plt.xlim(0,10)
+plt.ylim()
+
+
+val_result[0]
+val_result[1]
+np.min(val_result)
+
+# alpha를 0.03로 선택!
+np.argmin(val_result)
+np.arange(0, 1, 0.01)[np.argmin(val_result)]
+
+
+model= Lasso(alpha=0.03)
+model.fit(train_x, train_y)
+model.coef_
+model.intercept_
+# model.predict(test_x)
+
+k=np.linspace(-4, 4, 80)
+
+k_df = pd.DataFrame({
+    "x" : k
+})
+
+for i in range(2, 21):
+    k_df[f"x{i}"] = k_df["x"] ** i
+    
+k_df
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# --------- 강사님 코드
+
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+from scipy.stats import uniform
+from sklearn.linear_model import LinearRegression
+
+# 20차 모델 성능을 알아보자
+np.random.seed(2024)
+x = uniform.rvs(size=30, loc=-4, scale=8)
+y = np.sin(x) + norm.rvs(size=30, loc=0, scale=0.3)
+
+df = pd.DataFrame({
+    "y" : y,
+    "x" : x
+})
+
+for i in range(2, 21):
+    df[f"x{i}"] = df["x"] ** i
+
+df
+
+def make_tr_val(fold_num, df):
+    np.random.seed(2024)
+    myindex=np.random.choice(30, 30, replace=False)
+
+    # valid index
+    val_index=myindex[(10*fold_num):(10*fold_num+10)]
+
+    # valid set, train set
+    valid_set=df.loc[val_index]
+    train_set=df.drop(val_index)
+
+    train_X=train_set.iloc[:,1:]
+    train_y=train_set.iloc[:,0]
+
+    valid_X=valid_set.iloc[:,1:]
+    valid_y=valid_set.iloc[:,0]
+
+    return (train_X, train_y, valid_X, valid_y)
+
+
+from sklearn.linear_model import Lasso
+
+val_result_total=np.repeat(0.0, 3000).reshape(3, -1)
+tr_result_total=np.repeat(0.0, 3000).reshape(3, -1)
+
+for j in np.arange(0, 3):
+    train_X, train_y, valid_X, valid_y = make_tr_val(fold_num=j, df=df)
+
+    # 결과 받기 위한 벡터 만들기
+    val_result=np.repeat(0.0, 1000)
+    tr_result=np.repeat(0.0, 1000)
+
+    for i in np.arange(0, 1000):
+        model= Lasso(alpha=i*0.01)
+        model.fit(train_X, train_y)
+
+        # 모델 성능
+        y_hat_train = model.predict(train_X)
+        y_hat_val = model.predict(valid_X)
+
+        perf_train=sum((train_y - y_hat_train)**2)
+        perf_val=sum((valid_y - y_hat_val)**2)
+        tr_result[i]=perf_train
+        val_result[i]=perf_val
+
+    tr_result_total[j,:]=tr_result
+    val_result_total[j,:]=val_result
+
+
+import seaborn as sns
+
+df = pd.DataFrame({
+    'lambda': np.arange(0, 10, 0.01), 
+    'tr': tr_result_total.mean(axis=0),
+    'val': val_result_total.mean(axis=0)
+})
+
+df['tr']
+
+# seaborn을 사용하여 산점도 그리기
+# sns.scatterplot(data=df, x='lambda', y='tr')
+sns.scatterplot(data=df, x='lambda', y='val', color='red')
+plt.xlim(0, 10)
+
+# alpha를 2.67로 선택!
+np.argmin(val_result_total.mean(axis=0))
+np.arange(0, 10, 0.01)[np.argmin(val_result_total.mean(axis=0))]
+
+
+# 함수 만들기
+
+def make_train_valid(fold_num, df, cv_num=3):  # cv_num이 def 정의에 사용되지 않아서 흐릿한 색으로 나옴. 그리고 기본값 3으로 설정되어 있어서, def 사용할 때 cv 입력 안해도 3으로 입력됨.
+    np.random.seed(2024)
+    index = np.random.choice(len(df),len(df),replace=False)
+    cut_n = int(len(df)/cv_num)
+    for i in cv_num:
+        if i != cv_num:
+            f"val{i}_index" = index[ cut_n * i : cut_n(i+1)]
+        elif i == cv_num:
+            f"val{i}_index" = index[ cut_n * i : ]
+
+
+    valid_set = df.loc[val_index]
+    train_set = df.drop(val_index)
+
+    train_x = train_set.iloc[:, 1:]
+    train_y = train_set.iloc[:,0]
+
+    valid_x = valid_set.iloc[:, 1:]
+    valid_y = valid_set.iloc[:, 0]
+
+    return (train_x, train_y, valid_x, valid_y)
+
+
+
+# 데이터가 적으면 오버피팅의 가능성이 높아진다. 따라서 라쏘 분석을 하면 람다 값이 커져서(오버피팅 방지를 위해 패널티를 빡세게 주기 위해서) 변수를 많이 지운다.
+
+
+
+
+
+
+# 0828 수업
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.stats import norm, uniform
+from sklearn.linear_model import Lasso
+from sklearn.model_selection import cross_val_score, KFold
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import make_pipeline
+from sklearn.metrics import make_scorer, mean_squared_error
+
+# 데이터 생성
+np.random.seed(2024)
+x = uniform.rvs(size=30, loc=-4, scale=8)
+y = np.sin(x) + norm.rvs(size=30, loc=0, scale=0.3)
+
+# 데이터를 DataFrame으로 변환하고 다항 특징 추가
+x_vars = np.char.add('x', np.arange(1, 21).astype(str))
+X = pd.DataFrame(x, columns=['x'])
+poly = PolynomialFeatures(degree=20, include_bias=False)  # include_bias : X행렬에서 맨 앞에 1을 붙이냐 안 붙이냐 그거임
+                                                    # degree : 몇 차까지 계산할거냐
+X_poly = poly.fit_transform(X)
+X_poly=pd.DataFrame(
+    data=X_poly,
+    columns=x_vars
+)
+
+# 교차 검증 설정
+kf = KFold(n_splits=3, shuffle=True, random_state=2024)
+
+# 알파 값 설정
+alpha_values = np.arange(0, 10, 0.01)
+
+# 각 알파 값에 대한 교차 검증 점수 저장
+mean_scores = []
+
+for alpha in alpha_values:
+    lasso = Lasso(alpha=alpha, max_iter=5000)  # minimize 할 때 5000번 반복해서 더 정확하게 구해라 라는 것임
+    scores = cross_val_score(lasso, X_poly, y, cv=kf, scoring='neg_mean_squared_error')  # scoring : score 계산하는 방법
+                                                            # neg_mean_squared_error : MSE에 마이너스 붙인 것 : 원래는 낮은 값이 높은 성능인건데, 높은 값이 높은 성능이다라고 하고 싶어서
+    mean_scores.append(np.mean(scores))
+
+# 결과를 DataFrame으로 저장
+df = pd.DataFrame({
+    'lambda': alpha_values,
+    'validation_error': mean_scores
+})
+
+# 결과 시각화  # y축 값이 마이너스가 붙긴 했지만, 그래프에서도 작은 값이 좋은 건 똑같음. 가장 밑에 있는 값을 찾아라
+plt.plot(df['lambda'], df['validation_error'], label='Validation Error', color='red')
+plt.xlabel('Lambda')
+plt.ylabel('Mean Squared Error')
+plt.legend()
+plt.title('Lasso Regression Train vs Validation Error')
+plt.show()
+
+# 최적의 alpha 값 찾기
+optimal_alpha = df['lambda'][np.argmin(df['validation_error'])]
+print("Optimal lambda:", optimal_alpha)
+
+
+
+
+# 08/29 수업
+# y = (x-2)^2 +1 그래프 그리기
+import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.linspace(-4, 8, 100)
+y = (x-2)**2 + 1
+plt.plot(x, y, color='black')
+plt.xlim(-4, 8)
+plt.ylim(-1,20)
+
+# y=4x-11 그래프
+line_y = 4*x -11
+plt.plot(x, line_y, color='red')
+
+
+# f'(x)=2x-4
+# k=4의 기울기
+k=4
+l_slope = 2*k -4
+f_k = (k-2)**2 + 1
+l_intercept = f_k - l_slope*k
+
+
+# 미분값의 의미2 : 함수값이 커지는 방향을 알려줌.
+# x=4에서 미분값이 4가 나왔다면 오른쪽 방향으로 함수값이 커진다는 것임
+# x=-4에서 미분값이 -2가 나왔다면 왼쪽방향으로 함수값이 커진다는 것임.
+
+# 함수값이 최소값인 곳을 찾으려면 미분계수값이 알려주는 방향의 반대방향으로 가야 됨. 
+
+
+# Q. y = x^2
+# 초기값 : 10, 델타:0.9
+# y' = 2x
+k=10
+for i in range(100):
+    k = k -0.9 * 2 * k
+
+print(k)
+
+
+k=10
+lstep = np.arange(100, 0 , -1)*0.01
+for i in range(100):
+
+
+for i in range(3):
+    print(i)
+
+
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+# x, y의 값을 정의합니다 (-1에서 7까지)
+x = np.linspace(-1, 7, 400)
+y = np.linspace(-1, 7, 400)
+x, y = np.meshgrid(x, y)   # x와 y의 조합을 계산해줌. (순서쌍) 400*400 = 160000개
+
+
+# 함수 f(x, y)를 계산합니다.
+z = (x - 3)**2 + (y - 4)**2 + 3
+
+# 그래프를 그리기 위한 설정
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+# 표면 그래프를 그립니다.
+ax.plot_surface(x, y, z, cmap='viridis')
+
+# 레이블 및 타이틀 설정
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('f(x, y)')
+ax.set_title('Graph of f(x, y) = (x-3)^2 + (y-4)^2 + 3')
+
+# 그래프 표시
+plt.show()
+
+# ==========================
+# 등고선 그래프
+import numpy as np
+import matplotlib.pyplot as plt
+
+# x, y의 값을 정의합니다 (-1에서 7까지)
+x = np.linspace(-10, 10, 400)
+y = np.linspace(-10, 10, 400)
+x, y = np.meshgrid(x, y)
+
+# 함수 f(x, y)를 계산합니다.
+z = (x - 3)**2 + (y - 4)**2 + 3
+
+# 등고선 그래프를 그립니다.
+plt.figure()
+cp = plt.contour(x, y, z, levels=20)  # levels는 등고선의 개수를 조절합니다.
+plt.colorbar(cp)  # 등고선 레벨 값에 대한 컬러바를 추가합니다.
+
+# 특정 점 (9, 2)에 파란색 점을 표시
+plt.scatter(9, 2, color='red', s=50)
+
+x=9; y=2
+lstep=0.1
+
+for i in range(100):
+    x , y = np.array([x, y]) - lstep* np.array([2*x-6, 2*y-8])
+    plt.scatter(float(x), float(y), color ='red', s= 25)
+
+print(x,y)  # 어디서 멈췄는지 알 수 있음
+
+
+# 축 레이블 및 타이틀 설정
+plt.xlabel('X')
+plt.ylabel('Y')
+plt.title('Contour Plot of f(x, y) = (x-3)^2 + (y-4)^2 + 3')
+plt.xlim(-10, 10)
+plt.ylim(-10, 10)
+
+# 그래프 표시
+plt.show()
+
+
+
+
+
+
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+# x, y의 값을 정의합니다 (-1에서 7까지)
+beta0 = np.linspace(-20, 20, 600)
+beta1 = np.linspace(-20, 20, 600)
+beta0, beta1 = np.meshgrid(beta0, beta1)
+
+# 함수 f(x, y)를 계산합니다.
+z =  (1 - (beta0 + beta1))**2 + \
+    (4 - (beta0 + 2 * beta1))**2 + \
+    (1.5 - (beta0 + 3 * beta1))**2 + \
+    (5 - (beta0 + 4 * beta1))**2
+
+# 등고선 그래프를 그립니다.
+plt.figure()
+cp = plt.contour(beta0, beta1, z, levels=20)  # levels는 등고선의 개수를 조절합니다.
+plt.colorbar(cp)  # 등고선 레벨 값에 대한 컬러바를 추가합니다.
+
+
+
+beta0 = 10 ; beta1 = 10
+lstep=0.01
+i=2
+for i in range(1000):
+    beta0, beta1 = np.array([beta0, beta1]) - lstep* np.array([-23+8*beta0+20*beta1, -67+20*beta0+60*beta1])
+    plt.scatter(float(beta0), float(beta1), color ='red', s= 25)
+
+print(beta0, beta1)  # 어디서 멈췄는지 알 수 있음 0.5000337122517691 0.949988533723301 에서 멈춤
+                    # 즉 , 0.5+0.95x = y 회귀직선으로 가까워짐
+
+# 축 레이블 및 타이틀 설정
+plt.xlabel('X')
+plt.ylabel('Y')
+plt.title('Contour Plot of f(beta0, beta1) ')
+
+
+# 그래프 표시
+plt.show()
+
+
+
+# 모델 fit으로 베타 구하기
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+
+df = pd.DataFrame({
+    'x' : np.array([1,2,3,4]),
+    'y' : np.array([1,4,1.5,5])
+})
+
+model = LinearRegression()
+model.fit(df[['x']], df['y'])
+model.coef_
+model.intercept_   # 앞서 찾은 값과 동일함
+
+
+# 최소 값을 찾았는데도 찾는 횟수(for문)이 남았다면 비효율적이게 계속 돌아가는거임
+# 그래서 이전에 찾은 값과 방금 찾은 값이 같으면 찾는 걸 중단하는 early stopping을 이용함.
+
+
+
+# k 최근접 모델 : k nearest neighborhood <- bagging 할 때 다른 모델들 결과와 함께 쓰면 예측 성능이 더 좋아질 수 있음.
+# # 근접한 애들 몇명만 볼 것 인가가 하이퍼파라미터임. : k
+# 거리를 구하기 위해서 계산이 오래걸림 (obs1에 대해서 나머지 obs들과의 거리를 하나하나 다 구해야함)
+# 비슷한 애들을 보고 예측. 비슷하다 = 거리가 가깝다
+# 상대적으로 거리가 가깝다는 거라서, 거리 값 자체는 멀어도 다른 애들보다 가까운면 그걸로 예측됨.
+# 거리1 : sqrt(a^2 + b^2)  , 거리2 : a + b
+
+df = pd.DataFrame({
+    'y' : [13,15,17,15,16],
+    'x1' : [16, 20, 22, 18, 17],
+    'x2' : [7, 7, 5, 6, 7]
+})
+
+(df['x1'] - 15)**2 + (df['x2'] - 5.6)**2  # 1번 펭귄
+np.abs(df['x1']-15) + np.abs(df['x2'] - 5.6)  # 1번 펭귄
+
+
+knn_regressor = KNeighborsRegressor(n_neighbors=3)
+knn_regressor.fit(X_train_scaled, y_train)
+
+
+
+
+# 08/30 수업
+def g(x=3):
+    result= x+1
+    return result
+
+print(g)  # 함수에 대해서 알고 싶은데 안 나옴, 근데 g쪽에 마우스를 가져다대면 함수 정보 뜸
+
+import inspect
+print(inspect.getsource(g))   # 함수 내용 출력해줌
+
+
+def calculation_1
+
+
+class DataFrma  # <- Cammel 식
+
+
+
+
+# if문  한 줄
+x=3
+y=1 if x>4 else 2
+y
+
+
+# 리스트 컴리헨션
+x = [1, -2, 3, -4, 5]
+result = ['양수' if value>0 else "음수" for value in x]
+result
+
+result = ['성공' if value > 0 else '실패' for value in [-1,5,-6, 2]]
+
+
+import numpy as np
+
+x = np.array([1, -2, 3 ,-4, 0])
+conditions = [
+    x>0, x==0, x<0
+]
+choices = ['양수', '0', '음수']
+result = np.select(conditions, choices, x)
+result
+
+
+names = ["john","alice"]
+ages = np.array([25,30])
+greetings = [f"이름: {name}, 나이: {age}." for name, age in zip(names, ages)]
+
+zipped = zip(names, ages)  # zip() 함수로 names와 ages를 병렬적으로 묶음
+
+# 각 튜플을 출력
+for name , age in zipped:
+    print(f"Name: {name}, Age: {age}")
+
+
+# while 문
+i = 0
+while i <= 10:
+    i += 3
+    print(i)
+
+
+# while, break 문
+i = 0
+while True:
+    i += 3
+    if i > 10:
+        break   # 그만 돌아감
+    print(i)
+
+
+import pandas as pd 
+data = pd.DataFrame({
+    'A' : [1,2,3],
+    'B' : [4,5,6]
+})
+
+data.apply(max, axis=0)
+data.apply(max, axis=1)
+
+
+def my_func(x, const=3):
+    return max(x)**2 + const
+
+my_func([3,4,10], 5)
+
+data.apply(my_func, axis=0)
+data.apply(my_func, axis=0, const=5)
+
+
+
+import numpy as np 
+
+array_2d = np.arange(1, 13).reshape((3,4), order='F')
+print(array_2d)
+
+
+np.apply_along_axis(max, axis=0, arr=array_2d)
+
+
+
+y=2 
+def my_func(x):
+    y=1
+    result = x+y
+    return result
+
+my_func(3)
+print(y)
+
+
+
+def my_func(x):
+    global y
+    y= y+1
+    result = x + y
+    return result
+
+my_func(3)
+print(y)   # 함수 돌릴 때마다 y값이 업데이트 됨.
+
+
+
+def my_func(x):
+    global y
+
+    def my_f(k):   # my_f(k)는 my_func가 정의된 공간 (함수 안에서) 정의된거라서 global에서 my_f를 접근할 수 없ㅏ.
+        return k**2
+
+    y = my_f(x) + 1
+    result = x + y
+
+    return result
+
+
+my_f(3)  # 정의되지 않음
+my_func(3)
+print(y)
+
+
+# 입력값이 몇 개일지 모를 땐 *를 앞에 붙인다 , 인수값을 하나하나씩 돌아간에 
+def add_many(*args):
+    result = 0
+    for i in args:
+        result = result + i
+    return result
+
+
+add_many(1, 2, 3)   # args는 값을 리스트처엄 받
+
+
+def first_many(*args):
+    return args[0]
+
+first_many(1,2,3)
+first_many(4,1,2,3)
+
+
+def add_mul(choice, *args):  # *만 붙이면 args 상관없이 다른 단어 써도 됨.
+    if choice == 'add':
+        result = 0
+        for i in args:
+            result = result + i
+    elif choice == 'mul':
+        result = 1
+        for i in args:
+            result = result * i
+    return result
+
+add_mul("add",5,4,3,1)
+
+add_mul("mul",5,4,3,1)
+
+
+## 별표 두개 (**)는 입력값을 딕셔너리로 만들어줌
+def my_twostar(choice, **kwargs):
+    if choice == 'first':
+        return print(kwargs[0])
+    elif choice == 'second':
+        return print(kwargs[1])
+    else:
+        return print(kwargs)
+    
+my_twostar('first', age=30, name='issac')
+my_twostar('second', age=30, name='issac')
+
+
+
+import numpy as np
+x = np.array([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+px = np.array([1/36 , 2/36, 3/36, 4/36 , 5/36, 6/36, 5/36 , 4/36, 3/36, 2/36 , 1/36])
+x_bar = sum(x*px)
+print("E[x] :", sum(x*px))
+
+print("Var[x] :", sum((x-x_bar)**2*px))
+
+print("E[2*x+3] :", sum(x*px)*2+3)
+
+print("Std[2*x+3] :", np.sqrt(sum((x-x_bar)**2*px)*4))
+
+
+
+from scipy.stats import norm, chi2
+1 - norm.cdf(24, loc=30, scale=4)
+
+
+
+norm.cdf((29.7-30)/(4/np.sqrt(8)), loc=0, scale=1) - norm.cdf((28-30)/(4/np.sqrt(8)), loc=0, scale=1)
+# 0.33735241076117556
+
+norm.cdf(29.7, loc=30, scale=4/np.sqrt(8)) - norm.cdf(28, loc=30, scale=4/np.sqrt(8))
+# 0.33735241076117556
+
+
+
+x = np.linspace(0,20,100)
+y = chi2.pdf(x, df=7)
+
+?chi2.pdf
+
+import matplotlib.pyplot as plt
+plt.plot(x, y)
+plt.show()
+
+
+
+# 귀무가설 : 두 변수가 독립이다
+# 대립가설 : 두 변수가 독립이 아니다 
+mat_a = np.array([14,4,0,10]).reshape(2,2)
+mat_a
+
+from scipy.stats import chi2, chi2_contingency
+chi2_value, p_value, df, expected = chi2_contingency(mat_a)  # 해당 함수는 4개의 결과값을 알려줌
+chi2_value.round(3)  # 검정통계량
+p_value.round(4)  # p-value 0.0004
+# 유의수준 0.05 하에 p-value가 0.05보다 작으므로, 귀무가설을 기각
+# 즉, 두 변수는 독립이 아니다. (두 변수 간의 영향이 있다. 우연이 아니다)
+
+# x ~ chi2(1)일 때, p(x > 12.6) 
+1 - chi2.cdf(12.6, df=1)
 
 
 
