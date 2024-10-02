@@ -410,7 +410,7 @@ plt.show()
 plt.clf()
 sns.scatterplot(data=economics, x='year', y='unemploy',s=2)
 plt.show()
-
+ 
 
 economics.head()
 my_df = economics.groupby('year', as_index=False).agg(year_mean=('unemploy','mean')
@@ -3352,6 +3352,7 @@ norm.cdf(29.7, loc=30, scale=4/np.sqrt(8)) - norm.cdf(28, loc=30, scale=4/np.sqr
 # 0.33735241076117556
 
 
+<<<<<<< HEAD
 from scipy.stats import chi2, chisquare
 import matplotlib.pyplot as plt
 import numpy as np
@@ -3361,6 +3362,17 @@ x = np.linspace(0,20,100)
 y = chi2.pdf(x, df=7)
 plt.plot(x, y)
 plt
+=======
+
+x = np.linspace(0,20,100)
+y = chi2.pdf(x, df=7)
+
+?chi2.pdf
+
+import matplotlib.pyplot as plt
+plt.plot(x, y)
+plt.show()
+>>>>>>> f6225cb6866db1dbc484cf29f80d50d2e032083a
 
 
 
@@ -3370,8 +3382,12 @@ mat_a = np.array([14,4,0,10]).reshape(2,2)
 mat_a
 
 from scipy.stats import chi2, chi2_contingency
+<<<<<<< HEAD
 chi2_value, p_value, df, expected = chi2_contingency(mat_a, correction=False)  # 해당 함수는 4개의 결과값을 알려줌
                                                             # correction = Fasle로 해야 우리가 일반적으로 아는 카이제곱 검정통계량이 나옴. correction = True는 연속형 어쩌구임.
+=======
+chi2_value, p_value, df, expected = chi2_contingency(mat_a)  # 해당 함수는 4개의 결과값을 알려줌
+>>>>>>> f6225cb6866db1dbc484cf29f80d50d2e032083a
 chi2_value.round(3)  # 검정통계량
 p_value.round(4)  # p-value 0.0004
 # 유의수준 0.05 하에 p-value가 0.05보다 작으므로, 귀무가설을 기각
@@ -3381,6 +3397,7 @@ p_value.round(4)  # p-value 0.0004
 1 - chi2.cdf(12.6, df=1)
 
 
+<<<<<<< HEAD
 np.sum((mat_a - expected)**2 / expected)  # 검정통계량 값이 맞음
 1 - chi2.cdf(15.556, df=1)  # p-value 값임 
 
@@ -3880,3 +3897,6 @@ grid_search.best_score_  # neg_mean_squared_error 라서 음수값 나올 거임
 
 best_model = grid_search.best_estimator_  # 최적의 모델을 자동으로 찾아줌
 best_model.predict(test_y)  # 바로 최적의 모델로 예측할 수 있음.
+=======
+
+>>>>>>> f6225cb6866db1dbc484cf29f80d50d2e032083a

@@ -1289,8 +1289,11 @@ penguins_dummies2.iloc[:,-3:]
 
 
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> f6225cb6866db1dbc484cf29f80d50d2e032083a
 # x와 y 설정
 x = penguins_dummies[["bill_length_mm", "species_Chinstrap", "species_Gentoo"]]  # 더미변수 2개만 사용
 y = penguins_dummies["bill_depth_mm"]

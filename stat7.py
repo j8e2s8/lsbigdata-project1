@@ -99,6 +99,7 @@ result
 
 
 
+<<<<<<< HEAD
 # pivot 연습 -------------------------------
 # mu_d에 대응하는 표본으로 변환
 tab3_data = tab3.pivot_table(index='id', 
@@ -158,3 +159,5 @@ df_wide=df_long.pivot_table(
                 columns="group",
                 values="score"
                 ).reset_index()
+=======
+>>>>>>> f6225cb6866db1dbc484cf29f80d50d2e032083a

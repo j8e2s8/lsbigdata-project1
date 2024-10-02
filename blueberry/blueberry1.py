@@ -114,6 +114,7 @@ def hist(df, numeric_col):
 	plt.show()
 
 train_df.columns
+<<<<<<< HEAD
 len(train_df.columns)
 hist(train_df, train_df.columns[1])
 
@@ -134,6 +135,27 @@ sns.histplot(data = train_df, x=train_df.columns[13], stat='density') # 'fruitse
 sns.histplot(data = train_df, x=train_df.columns[14], stat='density') # 'fruitmass'
 sns.histplot(data = train_df, x=train_df.columns[15], stat='density') # 'seeds'
 sns.histplot(data = train_df, x=train_df.columns[16], stat='density') # 'yield'
+=======
+hist(train_df, train_df.columns[1])
+
+sns.histplot(data = train_df, x=train_df.columns[1], stat='density') # 'clonesize'
+sns.histplot(data = train_df, x=train_df.columns[2], stat='density') # 'honeybee'
+sns.histplot(data = train_df, x=train_df.columns[3], stat='density') # 'bumbles'
+sns.histplot(data = train_df, x=train_df.columns[4], stat='density') # 'andrena'
+sns.histplot(data = train_df, x=train_df.columns[5], stat='density') # 'osmia'
+sns.histplot(data = train_df, x=train_df.columns[6], stat='density') # 'MaxOfUpperTRange'
+sns.histplot(data = train_df, x=train_df.columns[7], stat='density') # 'MinOfUpperTRange'
+sns.histplot(data = train_df, x=train_df.columns[8], stat='density') # 'AverageOfUpperTRange'
+sns.histplot(data = train_df, x=train_df.columns[9], stat='density') # 'MaxOfLowerTRange'
+sns.histplot(data = train_df, x=train_df.columns[10], stat='density') # 'MinOfLowerTRange'
+sns.histplot(data = train_df, x=train_df.columns[11], stat='density') # 'AverageOfLowerTRange'
+sns.histplot(data = train_df, x=train_df.columns[12], stat='density') # 'RainingDays'
+sns.histplot(data = train_df, x=train_df.columns[13], stat='density') # 'AverageRainingDays'
+sns.histplot(data = train_df, x=train_df.columns[14], stat='density') # 'fruitset'
+sns.histplot(data = train_df, x=train_df.columns[15], stat='density') # 'fruitmass'
+sns.histplot(data = train_df, x=train_df.columns[16], stat='density') # 'seeds'
+sns.histplot(data = train_df, x=train_df.columns[17], stat='density') # 'yield'
+>>>>>>> f6225cb6866db1dbc484cf29f80d50d2e032083a
 
 train_df['honeybee'].max()
 sns.histplot(data = train_df, x='honeybee', stat='density')
@@ -843,7 +865,11 @@ lasso_pred = test_y_pred
 
 
 # ridge 회귀분석 모든 변수
+<<<<<<< HEAD
 kf = KFold(n_splits=10, shuffle=True, random_state=2024)
+=======
+kf = KFold(n_splits=30, shuffle=True, random_state=2024)
+>>>>>>> f6225cb6866db1dbc484cf29f80d50d2e032083a
 
 def rmse(model):
     score = np.sqrt(-cross_val_score(model, train_x, train_y, cv = kf,
@@ -852,13 +878,22 @@ def rmse(model):
 
 
 # 각 알파 값에 대한 교차 검증 점수 저장
+<<<<<<< HEAD
 alpha_values = np.arange(0.07, 0.09, 0.001)
+=======
+alpha_values = np.arange(0, 10, 0.1)
+>>>>>>> f6225cb6866db1dbc484cf29f80d50d2e032083a
 mean_scores = np.zeros(len(alpha_values))
 
 k=0
 for alpha in alpha_values:
+<<<<<<< HEAD
     ridge = Ridge(alpha=alpha)
     mean_scores[k] = rmse(ridge)
+=======
+    lasso = Lasso(alpha=alpha)
+    mean_scores[k] = rmse(lasso)
+>>>>>>> f6225cb6866db1dbc484cf29f80d50d2e032083a
     k += 1
 
 
@@ -877,7 +912,11 @@ print("Optimal lambda:", optimal_alpha)
 
 
 
+<<<<<<< HEAD
 model = Ridge(alpha=0.07800000000000001)  
+=======
+model = Ridge(alpha=0)  # 얘도 람다 0 나옴
+>>>>>>> f6225cb6866db1dbc484cf29f80d50d2e032083a
 
 train_perf_x = train_x[:10193]
 train_perf_y = train_y[:10193]
@@ -894,8 +933,13 @@ train_y_pred = model.predict(train_x)
 
 test_y_pred = model.predict(test_x)
 
+<<<<<<< HEAD
 submission['yield'] = test_y_pred
 submission.to_csv('./blueberry/all_ridge.csv', index=False)
+=======
+#submission['yield'] = test_y_pred
+#submission.to_csv('./blueberry/all_ridge.csv', index=False)
+>>>>>>> f6225cb6866db1dbc484cf29f80d50d2e032083a
 
 
 
@@ -914,8 +958,13 @@ mean_scores = np.zeros(len(alpha_values))
 
 k=0
 for alpha in alpha_values:
+<<<<<<< HEAD
     ridge = Ridge(alpha=alpha)
     mean_scores[k] = rmse(ridge)
+=======
+    lasso = Lasso(alpha=alpha)
+    mean_scores[k] = rmse(lasso)
+>>>>>>> f6225cb6866db1dbc484cf29f80d50d2e032083a
     k += 1
 
 
@@ -977,8 +1026,13 @@ mean_scores = np.zeros(len(alpha_values))
 
 k=0
 for alpha in alpha_values:
+<<<<<<< HEAD
     ridge = Ridge(alpha=alpha)
     mean_scores[k] = rmse(ridge)
+=======
+    lasso = Lasso(alpha=alpha)
+    mean_scores[k] = rmse(lasso)
+>>>>>>> f6225cb6866db1dbc484cf29f80d50d2e032083a
     k += 1
 
 
