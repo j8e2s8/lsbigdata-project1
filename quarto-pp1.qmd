@@ -1,0 +1,221 @@
+---
+title: "쿼토 PPT 만들기"
+author: "정은서"
+format: 
+    revealjs:
+        theme: moon
+        incremental: false
+        chalkboard: true
+---
+
+
+## 한 번에 나오는 페이지1
+- 한 번에 나오는 내용1
+- '-' 다음에 띄어쓰기 안하고 내용 작성하면 점 표시 안 됨. <br>
+만약 줄 글을 썼는데 줄바꿈이 안 된다면,<br>
+줄을 바꾸고 싶은 곳에 '\<br>'을 써주면 됨.
+
+
+## 넘기면 나오는 페이지2
+::: {.incremental}
+- 넘기면 나오는 내용1
+- '-' 다음에 띄어쓰기 안하고 내용 작성하면 점 표시 안 됨. 
+::: 
+
+
+## 글씨 작게한 페이지3 {.smaller .incremental}
+내용이 많을 때 글씨를 작게 만들기
+밑에 '-' 문장과 한 줄 떨어져 있어야 리스트 형식이 제대로 작동함. 
+
+- 아이템 1
+- 아이템 2
+    - 서브 아이템 1
+    - 서브 아이템 2
+
+
+## 스크롤 있는 페이지4 {.scrollable}
+- 내용이 많을 때 스크롤 만들어주기
+- 내용이 많은데 스크롤이 없다면, 내용이 짤려서 나오게 됨.
+    - 서브 아이템 1
+    - 서브 아이템 2
+- 아이템 3
+- 아이템 4
+    - 서브 아이템 1
+    - 서브 아이템 2
+- 아이템 5
+    - 서브 아이템1
+    - 서브 아이템2
+        - 서브 서브 아이템1
+
+
+## 풋노트 & Aside가 있는 페이지5
+::: {.incremental}
+일반 문장^[풋노트]은 다음과 같이 표시 됩니다.
+풋노트 설정하는 법^[설명 넣기]은 이렇게 한다. <br>
+aside를 이용하고 싶다면 본문과 한 줄 떨어져있어야함. 
+
+- '-' 리스트 문장마다 넘기고 싶다면 {.incremental} 설정하기.
+- 위 문장과 한 줄 떨어져 있어야 제대로 작동함.
+:::
+
+::: aside
+aside 이용 : 주석 내용 넣는 공간에 개별적으로도 내용을 넣을 수 있음.
+:::
+
+
+
+
+
+## 행 열 나눠진 한 번에 나오는 페이지6
+:::: {.columns} 
+
+::: {.column width="40%"} 
+- {.column width="40%"}에 띄어쓰기 안 붙이는 곳에 띄어쓰기 붙이면 안됨.
+- 한 번에 나오는 내용1
+- '-' 다음에 띄어쓰기 안하고 내용 작성하면 점 표시 안 됨. 
+:::
+
+
+::: {.column width="60%"}
+청크 코드 보여주는 옵션 지정 안해줌. (delfalt가 #| echo: false 임.)
+코드 작성할 때 간단하게 코드 결과만 보고 싶다면, 해당 코드 블럭지정한 뒤 ctrl + enter 하면 됨.
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+x = np.linspace(-4,4 , 20)
+y = x**2
+plt.plot(x,y)
+```
+:::
+
+::::
+
+
+
+
+## 행 열 나눠진 넘기면 나오는 페이지7 {.smaller .scrollable}
+::: {.incremental}
+
+:::: {.columns} 
+
+::: {.column width="40%"} 
+- 페이지에 두 개 이상 설정을 이용하고 싶다면 '{.설정1 .설정2}'로 띄어쓰기를 해줘야 함. 여기서는 {.small .scrollable} 함.
+- {.column width="40%"}에 띄어쓰기 안 붙이는 곳에 띄어쓰기 붙이면 안됨.
+- 넘기면 나오는 내용1
+- '-' 다음에 띄어쓰기 안하고 내용 작성하면 점 표시 안 됨. 
+:::
+
+
+::: {.column width="60%"}
+1. 청크 코드 보여주는 옵션 지정해줌 (#| echo: true)
+2. 코드 작성할 때 간단하게 코드 결과만 보고 싶다면, 해당 코드 블럭지정한 뒤 ctrl + enter 하면 됨.
+```{python}
+#| echo: true
+import numpy as np # <1>
+import matplotlib.pyplot as plt  # <2>
+x = np.linspace(-4,4 , 20)
+y = x**2
+plt.plot(x,y)
+```
+1. 넘파이 로드 하는 것임
+2. 파이플랏 로드 하는 것임
+:::
+
+::::
+
+:::
+
+
+
+## 행 열 나눠진, 코드 하이라이트, 작은 글씨, 스크롤 있는 페이지8  {.smaller .scrollable}
+
+:::: {.columns}
+::: {.column width=50%}
+페이지에 두 개 이상 설정을 이용하고 싶다면 '{.설정1 .설정2}'로 띄어쓰기를 해줘야 함. 여기서는 {.small .scrollable} 함.
+
+- 코드 하이라이트는 해주는데, 코드 실행은 안 됨.
+```{.python code-line-numbers="3-4"}
+import numpy as np
+import matplotlib.pyplot as plt
+x = np.linspace(-4,4 , 20)
+y = x**2
+plt.plot(x,y)
+```
+
+- 코드 실행하면서 코드 하이라이트도 주려면, 코드 보이는 옵션 지정해주고, 하이라이트도 옵션으로 줘야 함.
+```{python}
+#| echo: true
+#| code-line-numbers: "3,4"
+import numpy as np
+import matplotlib.pyplot as plt
+x = np.linspace(-4,4 , 20)
+y = x**2
+plt.plot(x,y)
+```
+
+:::
+
+
+::: {.column width=50%}
+- 청크 코드 전체 보여줬다가, 넘어갈 때마다 하이라이트 하나씩 보여줌.
+```{python}
+#| echo: true
+#| code-line-numbers: "|2|4-5"
+import numpy as np
+import matplotlib.pyplot as plt
+x = np.linspace(-4,4 , 20)
+y = x**2
+plt.plot(x,y)
+```
+:::
+
+::::
+
+
+
+
+
+## 탭이 있는 페이지9 {.scrollable}
+탭 안에 있는 내용이 많아서 짤려도, 페이지 자체에 {.scrollable} 설정하기
+
+::: {.panel-tabset}
+
+### Tab A
+Tab A 공간에 넣을 내용
+
+### Tab B 
+Tab B 공간에 넣을 내용 <br>
+앞서 있는 코드 청크에서 실행된 내용이 공유됨.
+즉, 앞에서 import를 했다면 역기서 import를 또 안 해도 됨. 앞서 생성된 변수를 여기서 이용해도 됨.
+
+```{python}
+y = x**3
+plt.plot(x, y)
+
+```
+
+:::
+
+
+## 바탕화면 색 지정한 페이지10 + 스피커 뷰{background-color="aquamarine"}
+페이지 설정으로 바탕화면 색 지정하기.
+
+어느 슬라이드든 's' 누르면 스피커뷰 이용 가능함. 스크립트가 나옴.
+
+::: {.notes}
+스크립트 작성하는 공간
+':::{.notes}'가 위에 작성한 내용과 한 줄 떨어져 있어야지 제대로 작동함.
+:::
+
+
+## 슬라이드 네비게이션 안내
+* Full 스크린 : f
+* 오버뷰 모드(슬라이드 리스트): o -> 원하는 슬라이드에서 마우스 클릭 or o
+* 줌 인/아웃 : alt + 확대하고 싶은 곳에 마우스 클릭
+* PDF 추출 모드 (화면을 스크롤 해서 볼 수 있음 + pdf로 저장 기능): e -> 다시 3 누르면 원상복귀됨.
+* 슬라이드 내용 찾는 법 : ctrl + shift + f (근데 하면 멈추고 에러 나는 것 같음)
+
+
+--- 
+제목을 안 쓰고 슬라이드 만들기 (제목 공간을 확보할 수 있음.)
+근데 페이지 설정(ex{.smaller})을 넣으면 '---'가 제대로 실행이 안돼서 페이지 자체가 없어져버림.

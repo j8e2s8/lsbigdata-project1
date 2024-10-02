@@ -1,0 +1,105 @@
+--- 
+title: "Palmer Penguins"
+author: "Cobblepot Analytics"
+format: 
+  dashboard:
+    logo: palmerpenguins.jfif
+    scrolling: true 
+    nav-buttons:
+      - icon: gitlab
+        href: https://github.com/j8e2s8/lsbigdata-project1
+---
+    
+
+# Page 1
+
+
+
+
+
+## Row(제목 넣어도됨) {height=70%}
+
+```{python}
+import pandas as pd
+import numpy as np
+import plotly.express as px
+from palmerpenguins import load_penguins
+
+penguins = load_penguins()
+
+fig = px.scatter(
+    penguins,
+    x="bill_length_mm",
+    y="bill_depth_mm",
+    color="species"
+)
+
+fig.update_layout(
+    title={'text' : "<span style = 'color:blue; font-weight:bold;'> 팔머펭귄 </span>",
+           'x' : 0.5,  # 왼쪽0, 오른쪽 1을 기준으로 0.5위치에 둬라는 것임. 가운데 정렬
+           'xanchor' : 'center',  # 이거 변화 없는 것 같은데...
+           'y' : 0.9}  # 맨 아래 0, 맨 위에 1을 기준으로 0.5위치에 둬라는 것임. 가운데 정렬
+) 
+fig.show() # vscode에서는 그냥 fig만 해도 그림 그려짐 (근데 fig 안해도 그려지는 것 같음)
+```
+
+## Row(제목 넣어도됨) {height=30%}
+
+```{python}
+```
+
+```{python}
+```
+
+### 테스트
+```{python}
+from itables import show
+show(penguins, buttons=['copy', 'excel','pdf'])
+
+```
+
+
+
+# Page 2
+
+```{python}
+articles = 100  
+comments = 50
+spam_num =300
+```
+
+
+```{python}
+#| content: valuebox
+#| title: "Articles per day"
+#| icon: pencil
+#| color: primary
+dict(
+  value = articles
+)
+```
+
+```{python}
+#| content: valuebox
+#| title: "Comments per day"
+dict(
+  icon = "chat",
+  color = "primary",
+  value = comments
+)
+```
+
+```{r}
+#| content: valuebox
+#| title: "Spam per day"
+list(
+  icon = "trash",
+  color = "danger",
+  value = spam
+)
+```
+
+
+
+# {.sidebar}
+# 페이지1 제목

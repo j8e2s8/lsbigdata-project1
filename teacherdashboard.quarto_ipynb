@@ -1,0 +1,277 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "---\n",
+        "title: \"팔머펭귄 대쉬보드\"\n",
+        "author: \"Issac Lee\"\n",
+        "format: \n",
+        "  dashboard:\n",
+        "    logo: \"penguins-cover.png\"\n",
+        "    nav-buttons:\n",
+        "      - icon: github\n",
+        "        href: https://github.com/issactoast/lsbigdata-project1/\n",
+        "server: shiny\n",
+        "---\n",
+        "\n",
+        "\n",
+        "# {.toolbar}\n",
+        "\n",
+        "여기는 사이드바에 대한 내용이 들어갈 곳입니다.\n",
+        "\n",
+        "이것은 테스트 문장 입력입니다.\n",
+        "\n",
+        "# Page 1\n",
+        "\n",
+        "## 칼럼\n",
+        "\n",
+        "### 첫번째 {height=60%}\n"
+      ],
+      "id": "3146b1c5"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "import plotly.express as px\n",
+        "from palmerpenguins import load_penguins\n",
+        "\n",
+        "penguins = load_penguins()\n",
+        "# penguins.head()\n",
+        "\n",
+        "fig = px.scatter(\n",
+        "    penguins,\n",
+        "    x=\"bill_length_mm\",\n",
+        "    y=\"bill_depth_mm\",\n",
+        "    color=\"species\",\n",
+        "    # trendline=\"ols\" # p.134\n",
+        ")\n",
+        "fig.show()"
+      ],
+      "id": "c4ede846",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### 두번째 {height=40%}\n",
+        "\n",
+        "#### 테스트1 {.tabset}\n"
+      ],
+      "id": "da42f713"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "from itables import show\n",
+        "show(penguins, buttons = ['copy', 'excel', 'pdf'])"
+      ],
+      "id": "7f85a3d9",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "from shiny.express import input, render, ui\n",
+        "\n",
+        "ui.input_selectize(\n",
+        "    \"var\", \"Select variable\",\n",
+        "    choices=[\"bill_length_mm\", \"body_mass_g\"]\n",
+        ")\n",
+        "\n",
+        "@render.plot\n",
+        "def hist():\n",
+        "    from matplotlib import pyplot as plt\n",
+        "    from palmerpenguins import load_penguins\n",
+        "\n",
+        "    df = load_penguins()\n",
+        "    df[input.var()].hist(grid=False)\n",
+        "    plt.xlabel(input.var())\n",
+        "    plt.ylabel(\"count\")"
+      ],
+      "id": "96f6f42e",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "::: {.card title=\"My Title\"}\n",
+        "\n",
+        "카드안에 들어있는 텍스트 입니다.\n",
+        "\n",
+        "![팔머펭귄](penguins-cover.png)\n",
+        "\n",
+        ":::\n",
+        "\n",
+        "# Page 2\n"
+      ],
+      "id": "4fa6a1d9"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "articles = 100\n",
+        "comments = 50\n",
+        "spam_num = 300"
+      ],
+      "id": "ea220331",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Row \n"
+      ],
+      "id": "ac1708f2"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "content": "valuebox",
+        "title": "Articles per day",
+        "icon": "pencil",
+        "color": "primary"
+      },
+      "source": [
+        "dict(\n",
+        "  value = articles\n",
+        ")"
+      ],
+      "id": "0a2c8477",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "content": "valuebox",
+        "title": "Comments per day"
+      },
+      "source": [
+        "dict(\n",
+        "  icon = \"chat\",\n",
+        "  color = \"primary\",\n",
+        "  value = comments\n",
+        ")"
+      ],
+      "id": "15d468e8",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "content": "valuebox",
+        "title": "Spam per day"
+      },
+      "source": [
+        "dict(\n",
+        "  icon = \"airplane-engines\",\n",
+        "  color = \"#f0330b\",\n",
+        "  value = spam_num\n",
+        ")"
+      ],
+      "id": "d23fdf0b",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Row  \n"
+      ],
+      "id": "8af15998"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "import plotly.express as px\n",
+        "from palmerpenguins import load_penguins\n",
+        "\n",
+        "penguins = load_penguins()\n",
+        "# penguins.head()\n",
+        "\n",
+        "fig = px.scatter(\n",
+        "    penguins,\n",
+        "    x=\"bill_length_mm\",\n",
+        "    y=\"bill_depth_mm\",\n",
+        "    color=\"species\",\n",
+        "    # trendline=\"ols\" # p.134\n",
+        ")\n",
+        "fig.show()"
+      ],
+      "id": "9d63f009",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# page3\n",
+        "\n",
+        "### Input Widgets: textInput(), SelectInput()    \n"
+      ],
+      "id": "91d3bfc1"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "#| echo: FALSE\n",
+        "from shiny import App, render, render_text, ui, input, output\n",
+        "import matplotlib.pyplot as plt\n",
+        "penguins = load_penguins()\n",
+        "\n",
+        "\n",
+        "\n",
+        "# Shiny 앱의 UI를 정의합니다.\n",
+        "app_ui = ui.page_fluid(\n",
+        "    ui.input_selectize(\"var\", \"Select variable\",\n",
+        "                       choices=[\"bill_length_mm\", \"body_mass_g\"])\n",
+        ")\n",
+        "\n",
+        "# Shiny 앱의 서버 로직을 정의합니다.\n",
+        "def server(input, output, session):\n",
+        "    @output()\n",
+        "    @render_text\n",
+        "    def text():\n",
+        "        return f\"선택한 값은 {input['var']()}\"\n",
+        "\n",
+        "# Shiny 앱을 생성합니다.\n",
+        "app = App(app_ui, server)\n"
+      ],
+      "id": "b21c9b6e",
+      "execution_count": null,
+      "outputs": []
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "lsbigdata-project1",
+      "language": "python",
+      "display_name": "lsbigdata-project1",
+      "path": "C:\\Users\\USER\\AppData\\Roaming\\jupyter\\kernels\\lsbigdata-project1"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}
