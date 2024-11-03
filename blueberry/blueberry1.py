@@ -231,7 +231,7 @@ df = pd.DataFrame({
 
 # Box-Cox 변환을 적용할 열 목록
 columns_to_transform = ['feature1', 'feature2', 'feature3']
-
+ 
 # Box-Cox 변환 및 데이터프레임 업데이트
 lambda_dict = {}  # 최적의 lambda 값을 저장할 딕셔너리
 
