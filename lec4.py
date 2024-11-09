@@ -534,6 +534,9 @@ plt.show()
 
 # y ~ Bernoulli(p) , x = sum(y) ~ B(n,p) , {(x/n) - p} / {p(1-p)/n} ~ N(0,1) (단, np≥5 or n(1-p)≥5) 분포가 맞는지 확인
 from scipy.stats import binom, norm
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 x = binom.rvs(n=20, p=1/4, size=1000)
 x_n = x/20
 mu = binom.expect(args=(20,1/4))/20  # <- p와 값이 같아짐
@@ -545,7 +548,29 @@ z2 = np.linspace(z_min, z_max, 500)
 plt.clf()
 sns.histplot(z, stat='density')
 plt.plot(z2, norm.pdf(z2, loc=0, scale=1), color='red')
+plt.xlim([-4,4])
 plt.show()
+
+
+# y ~ Bernoulli(p) , x = sum(y) ~ B(n,p) , {(x/n) - p} / {p(1-p)/n} ~ N(0,1) (단, np≥5 or n(1-p)≥5) 분포가 맞는지 확인
+from scipy.stats import bernoulli
+x = bernoulli.rvs(p=1/4, size=1000*20)
+x = x.reshape(-1,20)
+x_bar = x.mean(axis=1)
+mu = binom.expect(args=(20,1/4))/20  # <- p와 값이 같아짐
+sigma = binom.std(n=20,p=1/4) / 20  # <- sqrt(p(1-p)/n)와 값이 같아짐
+z = (x_bar-mu)/sigma
+z_min, z_max = (z.min(),z.max())
+z2 = np.linspace(z_min, z_max, 500)
+
+plt.clf()
+sns.histplot(z, stat='density')
+plt.plot(z2, norm.pdf(z2, loc=0, scale=1), color='red')
+plt.xlim([-4,4])
+plt.show()
+
+
+
 
 
 
