@@ -1,8 +1,12 @@
-
+# house price
 import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
+import matplotlib.pyplot as plt
 
 # 데이터 불러오기
 train_df = pd.read_csv('./house price/train.csv')
+train_loc_df = pd.read_csv('./house price/houseprice-with-lonlat.csv')
 test_df = pd.read_csv('./house price/test.csv')
 submission = pd.read_csv('./house price/sample_submission.csv')
 
@@ -10,6 +14,37 @@ submission = pd.read_csv('./house price/sample_submission.csv')
 #sample_submission.head()
 
 #sample_submission.to_csv('house price/sample_submission.csv' , index = False)
+
+
+
+
+# 컬럼 알아보기
+cols = train_df.columns
+train_df[train_df['MSSubClass'] == 20]['YearBuilt'].sort_values()  # 'MSSubClass'=20은 1938, 1946~2010에 지어진 집임
+train_df[train_df['MSSubClass'] == 30]['YearBuilt'].sort_values()  # 'MSSubClass'=30은 1885, 1910~1945, 1948에 지어진 집임
+
+
+
+
+
+
+
+
+
+
+# 중복 집 알아보기
+train_loc_df[['Longitude','Latitude']].value_counts().sort_values()
+
+train_loc_df[['Longitude','Latitude']]
+
+
+
+
+
+
+
+
+
 
 
 price_mean = df['SalePrice'].mean()
@@ -653,16 +688,17 @@ submission.to_csv('./house price/sample_submission_line10_240802.csv', index=Fal
 
 
 # 변수 여러개
-x = np.array(df[['GrLivArea','GarageArea']]).reshape(-1,2)
-x = df[['GrLivArea','GarageArea']]
-y = df['SalePrice']
+x = np.array(train_df[['GrLivArea','GarageArea']]).reshape(-1,2)
+x = train_df[['GrLivArea','GarageArea']]
+y = train_df['SalePrice']
 model = LinearRegression()
 model.fit(x,y)
 y_train_pred = model.predict(x)
 
 model.coef_
 model.intercept_
-
+for i in range(len(model.coef_)):
+    print("베타",i+1,"_hat :", model.coef_[i])
 
 
 def f(x,y):
@@ -699,11 +735,12 @@ submission.to_csv('./house price/sample_submission_line11.csv', index=False)
 
 
 # 변수 2개 다른걸로 해보기 (하다 맒)
+from sklearn.linear_model import LinearRegression
 train_x = train_df[['GrLivArea', 'GarageArea']]
 train_y = train_df['SalePrice']
 
 model = LinearRegression()
-model.fit(x,y)
+model.fit(train_x,train_y)
 train_y_pred = model.predict(train_x)
 
 test_x = test_df[['GrLivArea', 'GarageArea']]
@@ -711,4 +748,587 @@ test_x.isna().sum()
 test_y_pred = model.predict(test_x)
 
 submission['SalePrice'] = test_y_pred
-submission.to_csv('./house price/sample_submission_line11.csv', index=False)
+submission.to_csv('./house price/sample_submission_line12.csv', index=False)
+
+
+
+# 모든 수치컬럼을 가지고 linearregression 해보기
+train_df.info()
+numeric_df = train_df.select_dtypes(include = [int, float])
+numeric_df.info()
+train_x = numeric_df.iloc[:,1:-1]  # ID와 SalePrice 컬럼 제거함
+train_y = train_df['SalePrice']
+
+train_x.isna().sum()  # LotFrontage, MasVnrArea, GarageYrBlt 결측치 대체하기
+
+train_x['LotFrontage'] = train_x['LotFrontage'].fillna(train_x['LotFrontage'].mean())
+train_x['MasVnrArea'] = train_x['MasVnrArea'].fillna(train_x['MasVnrArea'].mean())
+train_x['GarageYrBlt'] = train_x['GarageYrBlt'].fillna(train_x['GarageYrBlt'].mean())
+
+train_x.isna().sum()
+
+
+model = LinearRegression()
+model.fit(train_x, train_y)
+train_y_pred = model.predict(train_x)
+
+print("MSE :", sum((train_y_pred - train_y)**2))
+
+numeric_test_x = test_df.select_dtypes(include = [int,float])
+numeric_test_x = numeric_test_x.iloc[:,1:]
+
+numeric_test_x.isna().sum()  # LotFrontage, MasVnrArea, BsmtFinSF1, BsmtFinSF2, BsmtUnfSF, TotalBsmtSF, BsmtFullBath, BsmtHalfBath, GarageYrBlt, GarageCars, GarageArea
+numeric_test_x['LotFrontage'] = numeric_test_x['LotFrontage'].fillna(numeric_test_x['LotFrontage'].mean())
+numeric_test_x['MasVnrArea'] = numeric_test_x['MasVnrArea'].fillna(numeric_test_x['MasVnrArea'].mean())
+numeric_test_x['BsmtFinSF1'] = numeric_test_x['BsmtFinSF1'].fillna(numeric_test_x['BsmtFinSF1'].mean())
+numeric_test_x['BsmtFinSF2'] = numeric_test_x['BsmtFinSF2'].fillna(numeric_test_x['BsmtFinSF2'].mean())
+numeric_test_x['BsmtUnfSF'] = numeric_test_x['BsmtUnfSF'].fillna(numeric_test_x['BsmtUnfSF'].mean())
+numeric_test_x['TotalBsmtSF'] = numeric_test_x['TotalBsmtSF'].fillna(numeric_test_x['TotalBsmtSF'].mean())
+numeric_test_x['BsmtFullBath'] = numeric_test_x['BsmtFullBath'].fillna(numeric_test_x['BsmtFullBath'].mean())
+numeric_test_x['BsmtHalfBath'] = numeric_test_x['BsmtHalfBath'].fillna(numeric_test_x['BsmtHalfBath'].mean())
+numeric_test_x['GarageYrBlt'] = numeric_test_x['GarageYrBlt'].fillna(numeric_test_x['GarageYrBlt'].mean())
+numeric_test_x['GarageCars'] = numeric_test_x['GarageCars'].fillna(numeric_test_x['GarageCars'].mean())
+numeric_test_x['GarageArea'] = numeric_test_x['GarageArea'].fillna(numeric_test_x['GarageArea'].mean())
+
+numeric_test_x.isna().sum()
+
+
+test_y_pred = model.predict(numeric_test_x)
+submission['SalePrice'] = test_y_pred
+submission.to_csv('./house price/sample_submission_line_numeric_fillnamean_240805.csv', index=False)
+
+
+
+
+# 다른 방식으로 결측치 대체
+merge_train = train_df.copy()
+
+# LotFrontage 결측치 대체
+merge_train.loc[merge_train['LotFrontage'].isna()==True, ['LotFrontage', 'Street']]  
+group1 = train_df.groupby('Street', as_index=False).agg(lotfrontage_mean = ('LotFrontage', 'mean'))
+merge_train['LotFrontage'] = np.where((merge_train['LotFrontage'].isna() == True) & (merge_train['Street']=='Grvl'), 85.400000,
+                                np.where((merge_train['LotFrontage'].isna() == True) & (merge_train['Street']=='Pave'), 69.985786, merge_train['LotFrontage']))
+merge_train['LotFrontage'].isna().sum()  # 결측값 0개됨.
+
+
+# MasVnrArea 결측치 대체
+merge_train.loc[merge_train['MasVnrArea'].isna() == True, ['MasVnrArea', 'MasVnrType']]  # 'MasVnrArea', 'MasVnrType' 둘다 동일하게 결측치가 존재하기 때문에 MasVnrType 범주 기준으로 결측치 대체가 어려움. Exterior1st 범주 기준으로 결측치 대체하기로 함.
+
+group2 = train_df.groupby('Exterior1st', as_index=False).agg(MasVnrArea_mean = ('MasVnrArea','mean'))
+merge_train['MasVnrArea'].isna().sum() # 결측치가 8개 있음
+merge_train.loc[merge_train['MasVnrArea'].isna() == True, :]
+merge_train['MasVnrArea'] =  np.where((merge_train['MasVnrArea'].isna()==True) & (merge_train['Exterior1st'] == 'VinylSd'), 136.300000,
+                             np.where((merge_train['MasVnrArea'].isna()==True) & (merge_train['Exterior1st'] == 'Wd Sdng'), 43.375610, 
+                             np.where((merge_train['MasVnrArea'].isna()==True) & (merge_train['Exterior1st'] == 'CemntBd'), 144.440678, merge_train['MasVnrArea'])))
+
+merge_train['MasVnrArea'].isna().sum()  # 결측치가 0개가 됨.
+
+
+
+# GarageYrBlt 결측치 대체 (하던거)
+merge_train.loc[merge_train['GarageYrBlt'].isna() == True, ['GarageYrBlt', 'GarageType','GarageFinish','GarageQual']]  # 'GarageYrBlt'는 garage 관련 변수들은 모두 결측치이기 때문에 관련 컬럼의 범주 기준으로 결측치 대체가 어려움. 전체 평균으로 대체 
+merge_train['GarageYrBlt'].isna().sum()  # 결측치가 81개있음.
+merge_train['GarageYrBlt'] = merge_train['GarageYrBlt'].fillna(merge_train['GarageYrBlt'].mean())
+merge_train['GarageYrBlt'].isna().sum() # 결측치가 0개 됨.
+
+
+
+numeric_df = merge_train.select_dtypes(include = [int, float])
+numeric_df.info()
+train_x = numeric_df.iloc[:,1:-1]  # ID와 SalePrice 컬럼 제거함
+train_y = train_df['SalePrice']
+
+train_x.isna().sum()  # 결측치가 0개임.
+
+
+model = LinearRegression()
+model.fit(train_x, train_y)
+train_y_pred = model.predict(train_x)
+
+print("MSE :", sum((train_y_pred-train_y)**2))
+
+
+
+
+merge_test = test_df.copy()
+merge_test['LotFrontage'].isna().sum() # 결측치 227개
+
+group4 = merge_test.groupby('Street', as_index=False).agg(lotfrontage_mean = ('LotFrontage', 'mean'))
+merge_test['LotFrontage'] = np.where((merge_test['LotFrontage'].isna() == True) & (merge_test['Street']=='Grvl'), 91.000000,
+                                np.where((merge_test['LotFrontage'].isna() == True) & (merge_test['Street']=='Pave'), 68.488998, merge_test['LotFrontage']))
+merge_test['LotFrontage'].isna().sum()  # 결측값 0개됨.
+
+
+
+group5 = test_df.groupby('Exterior1st', as_index=False).agg(MasVnrArea_mean = ('MasVnrArea','mean'))
+merge_test['MasVnrArea'].isna().sum() # 결측치가 15개 있음
+merge_test.loc[merge_test['MasVnrArea'].isna() == True, 'Exterior1st']
+merge_test['MasVnrArea'] =  np.where((merge_test['MasVnrArea'].isna()==True) & (merge_test['Exterior1st'] == 'VinylSd'), 124.637827,
+                             np.where((merge_test['MasVnrArea'].isna()==True) & (merge_test['Exterior1st'] == 'WdShing'), 38.344828, 
+                             np.where((merge_test['MasVnrArea'].isna()==True) & (merge_test['Exterior1st'] == 'CemntBd'), 158.265625, merge_test['MasVnrArea'])))
+
+merge_test['MasVnrArea'].isna().sum()  # 결측치가 0개가 됨.
+
+
+
+
+merge_test.loc[merge_test['GarageYrBlt'].isna() == True, ['GarageYrBlt', 'GarageType','GarageFinish','GarageQual']]  # 'GarageYrBlt'는 garage 관련 변수들은 모두 결측치이기 때문에 관련 컬럼의 범주 기준으로 결측치 대체가 어려움. 전체 평균으로 대체 
+merge_test['GarageYrBlt'].isna().sum()  # 결측치가 78개있음.
+merge_test['GarageYrBlt'] = merge_test['GarageYrBlt'].fillna(merge_test['GarageYrBlt'].mean())
+merge_test['GarageYrBlt'].isna().sum() # 결측치가 0개 됨.
+
+
+
+numeric_test_x = merge_test.select_dtypes(include = [int,float])
+numeric_test_x.columns
+numeric_test_x = numeric_test_x.iloc[:,1:]
+
+numeric_test_x.isna().sum()  # BsmtFinSF1, BsmtFinSF2, BsmtUnfSF, TotalBsmtSF, BsmtFullBath, BsmtHalfBath, GarageCars, GarageArea
+numeric_test_x['BsmtFinSF1'] = numeric_test_x['BsmtFinSF1'].fillna(numeric_test_x['BsmtFinSF1'].mean())
+numeric_test_x['BsmtFinSF2'] = numeric_test_x['BsmtFinSF2'].fillna(numeric_test_x['BsmtFinSF2'].mean())
+numeric_test_x['BsmtUnfSF'] = numeric_test_x['BsmtUnfSF'].fillna(numeric_test_x['BsmtUnfSF'].mean())
+numeric_test_x['TotalBsmtSF'] = numeric_test_x['TotalBsmtSF'].fillna(numeric_test_x['TotalBsmtSF'].mean())
+numeric_test_x['BsmtFullBath'] = numeric_test_x['BsmtFullBath'].fillna(numeric_test_x['BsmtFullBath'].mean())
+numeric_test_x['BsmtHalfBath'] = numeric_test_x['BsmtHalfBath'].fillna(numeric_test_x['BsmtHalfBath'].mean())
+numeric_test_x['GarageCars'] = numeric_test_x['GarageCars'].fillna(numeric_test_x['GarageCars'].mean())
+numeric_test_x['GarageArea'] = numeric_test_x['GarageArea'].fillna(numeric_test_x['GarageArea'].mean())
+
+numeric_test_x.isna().sum()
+
+test_y_pred = model.predict(numeric_test_x)
+
+submission['SalePrice'] = test_y_pred
+submission.to_csv('./house price/sample_submission_line_fillna2_240805.csv', index=False)
+
+
+
+# 실습
+
+center_x = train_loc_df['Longitude'].median()
+center_y = train_loc_df['Latitude'].median()
+
+# 흰도화지 map 불러오기
+map_sig = folium.Map(location = [center_y, center_x], zoom_start=12, tiles="cartodbpositron")
+map_sig.save("./house price/map_seoul.html")  # 돌리면 프로젝트 폴더에 html 파일 생김. 들어가면 지도 나옴.
+
+
+# 코로플릿 <- 구 경계선 그리기
+folium.Choropleth(
+    geo_data=geo,
+    data=df_seoulpop,
+    columns = ("code", "pop"),
+    key_on = "feature.properties.SIG_CD").add_to(map_sig)
+
+map_sig.save("map_seoul.html")
+
+bins = list(train_loc_df['SalePrice'].quantile([0, 0.2, 0.4, 0.6, 0.8, 1]))  # 하위 0, 하위 0.2, 하위 0.4, 하위 0.6 ,... 에 해당하는 값을 반환해줌.
+bins
+
+folium.Choropleth(
+    geo_data=geo,
+    data=df_seoulpop,
+    columns = ("code", "pop"),
+    key_on = "feature.properties.SIG_CD",
+    bins = bins).add_to(map_sig)
+
+map_sig.save("map_seoul.html")
+
+
+
+folium.Choropleth(
+    geo_data=geo,
+    data=df_seoulpop,
+    columns = ("code", "pop"),
+    key_on = "feature.properties.SIG_CD",
+    fill_color = 'viridis',
+    bins = bins).add_to(map_sig)
+
+map_sig.save("map_seoul.html")
+
+
+# 점 찍는 법
+
+# 방법1    
+for _, row in train_loc_df.iterrows():
+    folium.Marker(location=[row['Latitude'], row['Longitude']] ).add_to(map_sig)
+map_sig.save("./house price/map_seoul.html")
+
+# 방법2
+for i in range(len(train_loc_df)):
+    folium.Marker(location=[float(train_loc_df['Latitude'][i]), float(train_loc_df['Longitude'][i])]).add_to(map_sig)
+map_sig.save("./house price/map_seoul.html")    
+
+# 방법3
+for lat, lon in zip(train_loc_df['Latitude'])
+
+
+
+def df_seoul(num):
+    gu_name=geo['features'][num]['properties']['SIG_KOR_NM']
+    coordinate_array = np.array(geo['features'][num]['geometry']['coordinates'][0][0])
+    x = coordinate_array[:,0]
+    y = coordinate_array[:,1]
+    return pd.DataFrame({'gu_name' : gu_name, 'x' : x, 'y': y})
+    
+df_seoul(12)
+
+
+from folim.plugins import MarkerCluster
+
+
+marker_cluster = MarkerCluster().add_to(map_sig)
+
+for i in range(len())
+
+
+
+# 0808 수업 : 인터랙티브 시각화
+#!pip install plotly
+import plotly.graph_objects as go
+import plotly.express as px
+import pandas as pd
+
+df_covid19_100 = pd.read_csv('./data/df_covid19_100.csv')
+df_covid19_100.info()
+
+
+#속성은 data, layout, frame 3개있음
+
+fig = go.Figure(  # 그림을 그릴 건데 () 안에 data 속성을 입력해줄거임. 근데 data 속성(dict :트레이스)을 2개 입력해줄 거임. 그럼 그래프 2개 겹쳐서 나옴. 속성(dict:트레이스) 1개만 입력해줘도 됨. 그럼 그래프 1개만 나옴.
+    data = [ # dict가 여러개일 때는 리스트로 묶어줌.
+        {'type' : 'scatter',
+         'mode' : 'markers',
+         'x' : df_covid19_100.loc[df_covid19_100['iso_code'] == 'KOR', 'date'],
+         'y' : df_covid19_100.loc[df_covid19_100['iso_code'] == 'KOR', 'new_cases'],
+         'marker' : {'color' : 'red'}
+        },
+        {'type' : 'scatter',
+         'mode' : 'lines',
+         'x' : df_covid19_100.loc[df_covid19_100['iso_code'] == 'KOR', 'date'],
+         'y' : df_covid19_100.loc[df_covid19_100['iso_code'] == 'KOR', 'new_cases'],
+         'line' : {'color' : 'red', 'dash' : 'dash'}
+        }]
+    , layout =  ## layout 속성이 1개밖에 없으니까 리스트로 안 묶어줌.
+        {'title' : "코로나19 발생 현황",
+         'xaxis' : {'title': '날짜', 'showgrid' : False},
+         'yaxis' : {'title' : '확진자수'},
+         'margin' :{ "l" : 25, "r" : 25, "t" : 50, "b" : 25}  # l : 왼쪽 여백, r : 오른쪽 여백, t : 위 여백, b : 아래 여백 
+        }
+    ).show()
+    
+    # 그림 보는법
+    # zoom 하고 원하는 영역 지정하면 거기 확대해줌. 그리고 아무대나 더블 클릭하면 다시 돌아감.
+    
+    # frame : 애니메이션 기능
+    # for문으로 각 장면을 만들어서 움직이게 보이도록 돌려주는 것임.
+    
+    
+    
+
+
+#프레임속성========
+# 애니메이션 프레임 생성
+frames = []
+dates = df_covid19_100.loc[df_covid19_100["iso_code"] == "KOR", "date"].unique()
+
+for date in dates:
+    frame_data = {
+        "data": [
+            {
+                "type": "scatter",
+                "mode": "markers",
+                "x": df_covid19_100.loc[(df_covid19_100["iso_code"] == "KOR") & (df_covid19_100["date"] <= date), "date"],
+                "y": df_covid19_100.loc[(df_covid19_100["iso_code"] == "KOR") & (df_covid19_100["date"] <= date), "new_cases"],
+                "marker": {"color": "red"}
+            },
+            {
+                "type": "scatter",
+                "mode": "lines",
+                "x": df_covid19_100.loc[(df_covid19_100["iso_code"] == "KOR") & (df_covid19_100["date"] <= date), "date"],
+                "y": df_covid19_100.loc[(df_covid19_100["iso_code"] == "KOR") & (df_covid19_100["date"] <= date), "new_cases"],
+                "line": {"color": "blue", "dash": "dash"}
+            }
+        ],
+        "name": str(date)
+    }
+    frames.append(frame_data)
+    
+len(frames)  # 2022-10-03 ~ 2023-01-11 동안 반복해서 101개 값을 가짐.
+
+
+
+# x축과 y축의 범위 설정
+x_range = ['2022-10-03', '2023-01-11']
+y_range = [8900, 88172]
+
+
+# 애니메이션을 위한 레이아웃 설정
+layout = {
+    "title": "코로나 19 발생현황",
+    "xaxis": {"title": "날짜", "showgrid": False, "range": x_range},
+    "yaxis": {"title": "확진자수", "range": y_range},
+    "margin": {"l": 25, "r": 25, "t": 50, "b": 50},
+    "updatemenus": [{
+        "type": "buttons",
+        "showactive": False,
+        "buttons": [{
+            "label": "Play",
+            "method": "animate",
+            "args": [None, {"frame": {"duration": 500, "redraw": True}, "fromcurrent": True}]
+        }, {
+            "label": "Pause",
+            "method": "animate",
+            "args": [[None], {"frame": {"duration": 0, "redraw": False}, "mode": "immediate", "transition": {"duration": 0}}]
+        }]
+    }]
+}
+
+# Figure 생성
+fig = go.Figure(
+    data=[
+        {
+            "type": "scatter",
+            "mode": "markers",
+            "x": df_covid19_100.loc[df_covid19_100["iso_code"] == "KOR", "date"],
+            "y": df_covid19_100.loc[df_covid19_100["iso_code"] == "KOR", "new_cases"],
+            "marker": {"color": "red"}
+        },
+        {
+            "type": "scatter",
+            "mode": "lines",
+            "x": df_covid19_100.loc[df_covid19_100["iso_code"] == "KOR", "date"],
+            "y": df_covid19_100.loc[df_covid19_100["iso_code"] == "KOR", "new_cases"],
+            "line": {"color": "blue", "dash": "dash"}
+        }
+    ],
+    layout=layout,
+    frames=frames
+)
+
+fig.show()
+
+
+
+
+
+import plotly.express as px
+from palmerpenguins import load_penguins
+
+penguins = load_penguins()
+penguins.head()
+
+
+penguins.columns
+
+
+fig = px.scatter(
+    penguins,
+    x = "bill_length_mm",
+    y = "bill_depth_mm",
+    color = 'species'
+    )
+    
+fig.update_layout(
+    title = dict(text="팔머펭귄 종별 부리 길이 vs. 깊이"),
+    paper_bgcolor = 'black',  # plot_bgcolor랑 같이 돌려야지 바뀜
+    plot_bgcolor = 'black',
+    legend = dict(font = dict(color = 'white'))
+).show()
+    
+
+
+
+
+# 데이터 패키지 설치
+# !pip install palmerpenguins
+import pandas as pd
+import numpy as np
+import plotly.express as px
+from palmerpenguins import load_penguins
+
+penguins = load_penguins()
+penguins.head()
+
+# x: bill_length_mm
+# y: bill_depth_mm  
+fig = px.scatter(
+    penguins,
+    x="bill_length_mm",
+    y="bill_depth_mm",
+    color="species"
+)
+# 레이아웃 업데이트
+fig.update_layout(
+    title=dict(text="팔머펭귄 종별 부리 길이 vs. 깊이", 
+               font=dict(color="white")),
+               
+    paper_bgcolor="black",
+    plot_bgcolor="black",
+    font=dict(color="white"),
+    xaxis=dict(
+        title=dict(text="부리 길이 (mm)", font=dict(color="white")), 
+        tickfont=dict(color="white"),
+        gridcolor='rgba(255, 255, 255, 0.2)'  # 그리드 색깔 조정
+    ),
+    yaxis=dict(
+        title=dict(text="부리 깊이 (mm)", font=dict(color="white")), 
+        tickfont=dict(color="white"),
+        gridcolor='rgba(255, 255, 255, 0.2)'  # 그리드 색깔 조정
+    ),
+    legend=dict(font=dict(color="white")),
+)
+
+fig.show()
+
+
+
+
+
+fig = px.scatter(
+    penguins,
+    x="bill_length_mm",
+    y="bill_depth_mm",
+    color="species",
+    title="팔머펭귄 종별 부리 길이 vs. 깊이"
+)
+
+# Update layout with enhancements
+fig.update_layout(
+    title=dict(
+        text="팔머펭귄 종별 부리 길이 vs. 깊이",
+        font=dict(color="white", size=24)  # Increase title font size
+    ),
+    paper_bgcolor="black",
+    plot_bgcolor="black",
+    font=dict(color="white"),
+    xaxis=dict(
+        title=dict(text="부리 길이 (mm)", font=dict(color="white")), 
+        tickfont=dict(color="white"),
+        gridcolor='rgba(255, 255, 255, 0.2)'
+    ),
+    yaxis=dict(
+        title=dict(text="부리 깊이 (mm)", font=dict(color="white")), 
+        tickfont=dict(color="white"),
+        gridcolor='rgba(255, 255, 255, 0.2)'
+    ),
+    legend=dict(
+        title=dict(text="펭귄 종", font=dict(color="black")),  # Update legend title
+        font=dict(color="black")
+    ),
+    margin=dict(l=40, r=40, t=60, b=40)  # Adjust margins if needed
+)
+
+# Update marker size
+fig.update_traces(marker=dict(size=10))  # Increase marker size
+
+# Show plot
+fig.show()
+
+
+
+from sklearn.linear_model import LinearRegression
+
+model = LinearRegression()
+
+penguins = penguins.dropna()
+x = penguins[['bill_length_mm']]
+y = penguins['bill_depth_mm']
+
+model.fit(x,y)
+linear_fit = model.predict(x)
+model.coef_
+model.intercept_
+
+fig.add_trace(
+    go.Scatter(
+        mode = 'lines',
+        x=x, y=linear_fit,
+        name = '선형회귀직선',
+        line=dict(dash="dot")
+    )
+).show()
+
+fig.add_trace(
+    go.Scatter(
+        mode = 'lines',
+        x=penguins['bill_length_mm'], y=linear_fit,
+        name = '선형회귀직선',
+        line=dict(dash="dot", color = 'white')  # 선 색 지정 가능
+    )
+).show()
+
+
+
+
+fig = px.scatter(
+    penguins,
+    x="bill_length_mm",
+    y="bill_depth_mm",
+    color="species",
+    trendline = 'ols'
+).show()
+
+
+
+
+
+# 범주형 변수로 회귀분석 진행하기
+# 범주형 변수인 'species'를 더미 변수로 변환
+penguins_dummies = pd.get_dummies(penguins, 
+                                  columns=['species'],
+                                  drop_first=False)
+penguins_dummies.columns  # species 범주갯수만큼 칼럼이 늘어남.
+penguins_dummies.iloc[:,-3:]
+
+
+penguins_dummies2 = pd.get_dummies(penguins, 
+                                  columns=['species'],
+                                  drop_first=True)   # 첫번째 범주(더미변수)를 없애도 나머지 더미변수로 인해 뭘 의미하는지 알 수 있다. 
+penguins_dummies2.columns
+penguins_dummies2.iloc[:,-3:]
+
+
+
+<<<<<<< HEAD
+
+
+=======
+>>>>>>> f6225cb6866db1dbc484cf29f80d50d2e032083a
+# x와 y 설정
+x = penguins_dummies[["bill_length_mm", "species_Chinstrap", "species_Gentoo"]]  # 더미변수 2개만 사용
+y = penguins_dummies["bill_depth_mm"]
+
+# 모델 학습
+model = LinearRegression()
+model.fit(x, y)
+
+model.coef_   # 10.565261622823762 + 0.20044313*bill_length_mm + (-1.93307791)*species_Chinstrap + (-5.10331533)*species_Gentoo
+model.intercept_   
+
+penguins.iloc[[0, 200],:]
+
+# 첫 번째 관측치에 대해서 예측값은
+# pred_y0 = 10.565261622823762 + 0.20044313 * 39.1 -1.93307791 * 0 -5.10331533 * 0 
+# pred_y200 = 10.565261622823762 + 0.20044313 * 45.0 -1.93307791 * 0 -5.10331533 * 1 
+
+
+regline_y_pred = model.predict(x)
+
+import matplotlib.pyplot as plt
+
+plt.clf()
+#plt.plot(penguins['bill_length_mm'], regline_y_pred)
+plt.scatter(penguins['bill_length_mm'], regline_y_pred)
+plt.show()
+
+
+import numpy as np
+import pandas as pd
+np.arange(10)
+
+# 08/13 지도
+import plotly.graph_objects as go
+
+import plotly
+plotly.__version__
+

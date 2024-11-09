@@ -1,0 +1,107 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "--- \n",
+        "title: \"Palmer Penguins\"\n",
+        "author: \"Cobblepot Analytics\"\n",
+        "format: \n",
+        "  dashboard:\n",
+        "    logo: palmerpenguins.jfif\n",
+        "    scrolling: true \n",
+        "    nav-buttons:\n",
+        "      - icon: gitlab\n",
+        "        href: https://github.com/j8e2s8/lsbigdata-project1\n",
+        "---\n",
+        "\n",
+        "    \n",
+        "\n",
+        "# Page 1\n",
+        "\n",
+        "\n",
+        "\n",
+        "## Row(제목 넣어도됨) {height=70%}\n"
+      ],
+      "id": "9cec8f84"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "import plotly.express as px\n",
+        "from palmerpenguins import load_penguins\n",
+        "\n",
+        "penguins = load_penguins()\n",
+        "\n",
+        "fig = px.scatter(\n",
+        "    penguins,\n",
+        "    x=\"bill_length_mm\",\n",
+        "    y=\"bill_depth_mm\",\n",
+        "    color=\"species\"\n",
+        ")\n",
+        "\n",
+        "fig.update_layout(\n",
+        "    title={'text' : \"<span style = 'color:blue; font-weight:bold;'> 팔머펭귄 </span>\",\n",
+        "           'x' : 0.5,  # 왼쪽0, 오른쪽 1을 기준으로 0.5위치에 둬라는 것임. 가운데 정렬\n",
+        "           'xanchor' : 'center',  # 이거 변화 없는 것 같은데...\n",
+        "           'y' : 0.9}  # 맨 아래 0, 맨 위에 1을 기준으로 0.5위치에 둬라는 것임. 가운데 정렬\n",
+        ") \n",
+        "fig.show() # vscode에서는 그냥 fig만 해도 그림 그려짐 (근데 fig 안해도 그려지는 것 같음)"
+      ],
+      "id": "b24b4c55",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Row(제목 넣어도됨) {height=30%}\n"
+      ],
+      "id": "5be4854c"
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### 테스트"
+      ],
+      "id": "0096ba97"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "from itables import show\n",
+        "show(penguins, buttons=['copy', 'excel','pdf'])"
+      ],
+      "id": "2547123c",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# Page 2\n",
+        "\n",
+        "테스트"
+      ],
+      "id": "03b1bbdd"
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python3",
+      "language": "python",
+      "display_name": "Python 3 (ipykernel)",
+      "path": "C:\\Users\\USER\\AppData\\Roaming\\Python\\share\\jupyter\\kernels\\python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}

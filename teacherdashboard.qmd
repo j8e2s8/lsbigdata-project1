@@ -1,0 +1,178 @@
+---
+title: "팔머펭귄 대쉬보드"
+author: "Issac Lee"
+format: 
+  dashboard:
+    logo: "penguins-cover.png"
+    nav-buttons:
+      - icon: github
+        href: https://github.com/issactoast/lsbigdata-project1/
+server: shiny
+---
+
+# {.toolbar}
+
+여기는 사이드바에 대한 내용이 들어갈 곳입니다.
+
+이것은 테스트 문장 입력입니다.
+
+# Page 1
+
+## 칼럼
+
+### 첫번째 {height=60%}
+
+```{python}
+import pandas as pd
+import numpy as np
+import plotly.express as px
+from palmerpenguins import load_penguins
+
+penguins = load_penguins()
+# penguins.head()
+
+fig = px.scatter(
+    penguins,
+    x="bill_length_mm",
+    y="bill_depth_mm",
+    color="species",
+    # trendline="ols" # p.134
+)
+fig.show()
+```
+
+### 두번째 {height=40%}
+
+#### 테스트1 {.tabset}
+
+```{python}
+from itables import show
+show(penguins, buttons = ['copy', 'excel', 'pdf'])
+```
+
+
+```{python}
+from shiny.express import input, render, ui
+
+ui.input_selectize(
+    "var", "Select variable",
+    choices=["bill_length_mm", "body_mass_g"]
+)
+
+@render.plot
+def hist():
+    from matplotlib import pyplot as plt
+    from palmerpenguins import load_penguins
+
+    df = load_penguins()
+    df[input.var()].hist(grid=False)
+    plt.xlabel(input.var())
+    plt.ylabel("count")
+```
+
+::: {.card title="My Title"}
+
+카드안에 들어있는 텍스트 입니다.
+
+![팔머펭귄](penguins-cover.png)
+
+:::
+
+# Page 2
+
+```{python}
+articles = 100
+comments = 50
+spam_num = 300
+```
+
+## Row 
+
+```{python}
+#| content: valuebox
+#| title: "Articles per day"
+#| icon: pencil
+#| color: primary
+dict(
+  value = articles
+)
+```
+
+```{python}
+#| content: valuebox
+#| title: "Comments per day"
+dict(
+  icon = "chat",
+  color = "primary",
+  value = comments
+)
+```
+
+```{python}
+#| content: valuebox
+#| title: "Spam per day"
+dict(
+  icon = "airplane-engines",
+  color = "#f0330b",
+  value = spam_num
+)
+```
+
+## Row  
+
+```{python}
+import pandas as pd
+import numpy as np
+import plotly.express as px
+from palmerpenguins import load_penguins
+
+penguins = load_penguins()
+# penguins.head()
+
+fig = px.scatter(
+    penguins,
+    x="bill_length_mm",
+    y="bill_depth_mm",
+    color="species",
+    # trendline="ols" # p.134
+)
+fig.show()
+```
+
+
+
+# page3
+
+### Input Widgets: textInput(), SelectInput()    
+  
+```{python}
+#| echo: FALSE
+from shiny import App, render, render_text, ui, input, output
+import matplotlib.pyplot as plt
+penguins = load_penguins()
+
+
+
+# Shiny 앱의 UI를 정의합니다.
+app_ui = ui.page_fluid(
+    ui.input_selectize("var", "Select variable",
+                       choices=["bill_length_mm", "body_mass_g"])
+)
+
+# Shiny 앱의 서버 로직을 정의합니다.
+def server(input, output, session):
+    @output()
+    @render_text
+    def text():
+        return f"선택한 값은 {input['var']()}"
+
+# Shiny 앱을 생성합니다.
+app = App(app_ui, server) 
+
+
+```
+   
+  
+   
+
+
