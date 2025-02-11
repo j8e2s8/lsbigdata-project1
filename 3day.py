@@ -134,6 +134,8 @@ dict_from_set
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+import numpy as np
+
 
 var = ["a","a","b","c"]
 var
