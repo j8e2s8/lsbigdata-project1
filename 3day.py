@@ -140,6 +140,8 @@ import pandas as pd
 
 03087b3
 
+88eba21
+
 var = ["a","a","b","c"]
 var
 seaborn.countplot(x=var)
