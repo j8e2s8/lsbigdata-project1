@@ -135,6 +135,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 변경경
+커밋다시 하자
 
 var = ["a","a","b","c"]
 var
