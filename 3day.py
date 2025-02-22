@@ -134,6 +134,7 @@ dict_from_set
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+변경경
 
 var = ["a","a","b","c"]
 var
